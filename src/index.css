@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #00A82D;
+  --color-primary-dark: #0A7A27;
+  --color-primary-light: #D8F5E0;
+
+  --color-accent-yellow: #FFD43B;
+  --color-accent-purple: #9B59B6;
+  --color-accent-orange: #FF8A05;
+
+  --color-cream: #FAF8F5;
+
+  --color-neutral-900: #1A1A1A;
+  --color-neutral-800: #2F2F2F;
+  --color-neutral-700: #515151;
+  --color-neutral-500: #7D7D7D;
+  --color-neutral-300: #CFCFCF;
+  --color-neutral-200: #E7E7E7;
+  --color-neutral-100: #F4F4F4;
+
+  --color-success: #00A82D;
+  --color-warning: #FF8A05;
+  --color-danger: #D90429;
+  --color-info: #0066FF;
+
+  --font-sans: "Google Sans Flex", sans-serif;
+  --font-alt: "Google Sans Flex", sans-serif;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-neutral-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Floating animations for signup page */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 5s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+/* Slide in animation for mobile menu */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+/* Slide in animation for search panel */
+@keyframes slide-in-top {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-top {
+  animation: slide-in-top 0.3s ease-out;
+}
+
+/* Safe area for mobile devices */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
