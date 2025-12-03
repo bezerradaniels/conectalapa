@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Edit2, Pause, Trash2, CheckCircle, XCircle, Plus } from 'lucide-react';
+import { Edit2, Pause, Play, Trash2, CheckCircle, XCircle, Plus } from 'lucide-react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
+import { ToastContainer } from '../components/Toast';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -10,8 +11,14 @@ interface DashboardProps {
     isAdmin?: boolean;
 }
 
+interface Toast {
+    id: string;
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+}
+
 export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
-    const { profile, user } = useAuth();
+    const { user } = useAuth();
     const [companies, setCompanies] = useState<any[]>([]);
     const [jobs, setJobs] = useState<any[]>([]);
     const [packages, setPackages] = useState<any[]>([]);
@@ -19,6 +26,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
     const [foods, setFoods] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [toasts, setToasts] = useState<Toast[]>([]);
+
+    const showToast = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+        const id = Math.random().toString(36).substring(7);
+        setToasts(prev => [...prev, { id, message, type }]);
+    };
+
+    const removeToast = (id: string) => {
+        setToasts(prev => prev.filter(toast => toast.id !== id));
+    };
 
     useEffect(() => {
         if (user) {
@@ -29,7 +46,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
     const loadData = async () => {
         try {
             setLoading(true);
-            
+
             // Carregar empresas
             let companiesQuery = supabase.from('companies').select('*');
             if (!isAdmin && user) {
@@ -80,9 +97,98 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
             }
         } catch (error) {
             console.error('Error loading dashboard data:', error);
+            showToast('Erro ao carregar dados', 'error');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleApprove = async (id: string, type: string) => {
+        try {
+            const table = getTableName(type);
+            const { error } = await supabase
+                .from(table)
+                .update({ status: 'active' })
+                .eq('id', id);
+
+            if (error) throw error;
+
+            await loadData();
+            showToast('Item aprovado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Error approving item:', error);
+            showToast('Erro ao aprovar item', 'error');
+        }
+    };
+
+    const handleReject = async (id: string, type: string) => {
+        try {
+            const table = getTableName(type);
+            const { error } = await supabase
+                .from(table)
+                .update({ status: 'inactive' })
+                .eq('id', id);
+
+            if (error) throw error;
+
+            await loadData();
+            showToast('Item rejeitado', 'warning');
+        } catch (error) {
+            console.error('Error rejecting item:', error);
+            showToast('Erro ao rejeitar item', 'error');
+        }
+    };
+
+    const handleToggleStatus = async (id: string, currentStatus: string, type: string) => {
+        try {
+            const table = getTableName(type);
+            const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+
+            const { error } = await supabase
+                .from(table)
+                .update({ status: newStatus })
+                .eq('id', id);
+
+            if (error) throw error;
+
+            await loadData();
+            showToast(
+                newStatus === 'active' ? 'Item ativado' : 'Item pausado',
+                'success'
+            );
+        } catch (error) {
+            console.error('Error toggling status:', error);
+            showToast('Erro ao alterar status', 'error');
+        }
+    };
+
+    const handleDelete = async (id: string, type: string) => {
+        try {
+            const table = getTableName(type);
+            const { error } = await supabase
+                .from(table)
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+
+            await loadData();
+            showToast('Item excluído com sucesso', 'success');
+        } catch (error) {
+            console.error('Error deleting item:', error);
+            showToast('Erro ao excluir item', 'error');
+        }
+    };
+
+    const getTableName = (type: string): string => {
+        const tables: { [key: string]: string } = {
+            'companies': 'companies',
+            'jobs': 'jobs',
+            'packages': 'travel_packages',
+            'events': 'events',
+            'foods': 'foods',
+        };
+        return tables[type] || type;
     };
 
     const getStatusBadge = (status: string) => {
@@ -173,7 +279,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
                                         <td className="py-4 px-4">{getStatusBadge(item.status)}</td>
                                     )}
                                     <td className="py-4 px-4 text-[var(--color-neutral-700)]">
-                                        {type === 'users' 
+                                        {type === 'users'
                                             ? new Date(item.created_at).toLocaleDateString('pt-BR')
                                             : (item.date || new Date(item.created_at).toLocaleDateString('pt-BR'))
                                         }
@@ -182,23 +288,64 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
                                         <div className="flex justify-end gap-2">
                                             {isAdmin && item.status === 'pending' && (
                                                 <>
-                                                    <Button variant="ghost" className="p-2 cursor-pointer" title="Aprovar">
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="p-2 cursor-pointer hover:bg-green-50"
+                                                        title="Aprovar"
+                                                        onClick={() => handleApprove(item.id, type)}
+                                                    >
                                                         <CheckCircle size={18} className="text-[var(--color-success)]" />
                                                     </Button>
-                                                    <Button variant="ghost" className="p-2 cursor-pointer" title="Rejeitar">
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="p-2 cursor-pointer hover:bg-red-50"
+                                                        title="Rejeitar"
+                                                        onClick={() => {
+                                                            if (confirm('Tem certeza que deseja rejeitar este item?')) {
+                                                                handleReject(item.id, type);
+                                                            }
+                                                        }}
+                                                    >
                                                         <XCircle size={18} className="text-[var(--color-danger)]" />
                                                     </Button>
                                                 </>
                                             )}
-                                            <Button variant="ghost" className="p-2 cursor-pointer" title="Editar">
-                                                <Edit2 size={18} className="text-[var(--color-neutral-700)]" />
-                                            </Button>
-                                            <Button variant="ghost" className="p-2 cursor-pointer" title="Pausar">
-                                                <Pause size={18} className="text-[var(--color-neutral-700)]" />
-                                            </Button>
-                                            <Button variant="ghost" className="p-2 cursor-pointer" title="Excluir">
-                                                <Trash2 size={18} className="text-[var(--color-danger)]" />
-                                            </Button>
+                                            {type !== 'users' && (
+                                                <>
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="p-2 cursor-pointer hover:bg-gray-50"
+                                                        title="Editar"
+                                                        onClick={() => alert('Funcionalidade de edição em desenvolvimento')}
+                                                    >
+                                                        <Edit2 size={18} className="text-[var(--color-neutral-700)]" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        className={`p-2 cursor-pointer ${item.status === 'active' ? 'hover:bg-orange-50' : 'hover:bg-green-50'}`}
+                                                        title={item.status === 'active' ? 'Pausar' : 'Ativar'}
+                                                        onClick={() => handleToggleStatus(item.id, item.status, type)}
+                                                    >
+                                                        {item.status === 'active' ? (
+                                                            <Pause size={18} className="text-[var(--color-neutral-700)]" />
+                                                        ) : (
+                                                            <Play size={18} className="text-[var(--color-success)]" />
+                                                        )}
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        className="p-2 cursor-pointer hover:bg-red-50"
+                                                        title="Excluir"
+                                                        onClick={() => {
+                                                            if (confirm('⚠️ Tem certeza que deseja excluir este item?\n\nEsta ação não pode ser desfeita!')) {
+                                                                handleDelete(item.id, type);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Trash2 size={18} className="text-[var(--color-danger)]" />
+                                                    </Button>
+                                                </>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -222,27 +369,30 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
     }
 
     return (
-        <div className="max-w-[1140px] mx-auto py-8 px-6">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-[var(--color-neutral-900)] mb-2">
-                    {isAdmin ? 'Painel Administrativo' : 'Meu Painel'}
-                </h1>
-                <p className="text-[var(--color-neutral-500)]">
-                    {isAdmin ? 'Gerencie todos os cadastros e aprovações' : 'Gerencie seus cadastros'}
-                </p>
-                {!isAdmin && (
-                    <p className="text-sm text-[var(--color-neutral-400)] mt-2">
-                        💡 Seus cadastros precisam ser aprovados por um administrador antes de ficarem públicos
+        <>
+            <ToastContainer toasts={toasts} removeToast={removeToast} />
+            <div className="max-w-[1140px] mx-auto py-8 px-6">
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-[var(--color-neutral-900)] mb-2">
+                        {isAdmin ? 'Painel Administrativo' : 'Meu Painel'}
+                    </h1>
+                    <p className="text-[var(--color-neutral-500)]">
+                        {isAdmin ? 'Gerencie todos os cadastros e aprovações' : 'Gerencie seus cadastros'}
                     </p>
-                )}
-            </div>
+                    {!isAdmin && (
+                        <p className="text-sm text-[var(--color-neutral-400)] mt-2">
+                            💡 Seus cadastros precisam ser aprovados por um administrador antes de ficarem públicos
+                        </p>
+                    )}
+                </div>
 
-            <TableSection title={isAdmin ? "Todas as Empresas" : "Minhas Empresas"} data={companies} type="companies" />
-            <TableSection title={isAdmin ? "Todas as Vagas" : "Minhas Vagas"} data={jobs} type="jobs" />
-            <TableSection title={isAdmin ? "Todas as Viagens" : "Minhas Viagens"} data={packages} type="packages" />
-            <TableSection title={isAdmin ? "Todos os Eventos" : "Meus Eventos"} data={events} type="events" />
-            <TableSection title={isAdmin ? "Toda Alimentação" : "Minha Alimentação"} data={foods} type="foods" />
-            {isAdmin && <TableSection title="Usuários Cadastrados" data={users} type="users" />}
-        </div>
+                <TableSection title={isAdmin ? "Todas as Empresas" : "Minhas Empresas"} data={companies} type="companies" />
+                <TableSection title={isAdmin ? "Todas as Vagas" : "Minhas Vagas"} data={jobs} type="jobs" />
+                <TableSection title={isAdmin ? "Todas as Viagens" : "Minhas Viagens"} data={packages} type="packages" />
+                <TableSection title={isAdmin ? "Todos os Eventos" : "Meus Eventos"} data={events} type="events" />
+                <TableSection title={isAdmin ? "Toda Alimentação" : "Minha Alimentação"} data={foods} type="foods" />
+                {isAdmin && <TableSection title="Usuários Cadastrados" data={users} type="users" />}
+            </div>
+        </>
     );
 };

@@ -5,6 +5,7 @@ import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useAuth } from '../contexts/AuthContext';
+import { generateSlug } from '../lib/utils';
 
 export const Home: React.FC = () => {
     const { profile } = useAuth();
@@ -64,7 +65,7 @@ export const Home: React.FC = () => {
                         Central BJL
                     </span>
                 </div>
-                
+
                 <p className="text-base md:text-lg text-[var(--color-neutral-600)] mb-3">
                     👋 Olá, <span className="font-semibold text-[var(--color-neutral-900)]">
                         {profile ? profile.name : 'visitante'}
@@ -131,7 +132,11 @@ export const Home: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {companies.map((company) => (
-                        <Card key={company.id} className="p-0 overflow-hidden">
+                        <Card
+                            key={company.id}
+                            className="p-0 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                            onClick={() => navigate(`/empresa/${generateSlug(company.name)}`)}
+                        >
                             <img src={company.image} alt={company.name} className="w-full h-40 object-cover" />
                             <div className="p-4">
                                 <h3 className="font-semibold text-[var(--color-neutral-900)] mb-1">{company.name}</h3>
@@ -229,7 +234,7 @@ export const Home: React.FC = () => {
                                 <h3 className="font-semibold text-[var(--color-neutral-900)] mb-2">{food.name}</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {food.types.slice(0, 2).map((type, index) => (
-                                        <span 
+                                        <span
                                             key={index}
                                             className="inline-block px-3 py-1 bg-[var(--color-primary-light)] text-[var(--color-primary-dark)] text-sm rounded-full capitalize"
                                         >

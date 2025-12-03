@@ -6,6 +6,7 @@ import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Dashboard } from './pages/Dashboard';
 import { CompanyForm } from './pages/CompanyForm';
+import { CompanyDetail } from './pages/CompanyDetail';
 import { EventForm } from './pages/EventForm';
 import { JobForm } from './pages/JobForm';
 import { TravelPackageForm } from './pages/TravelPackageForm';
@@ -43,11 +44,11 @@ function AppRoutes() {
       <Route path="/login" element={profile ? <Navigate to="/" /> : <Login />} />
       <Route path="/cadastro" element={profile ? <Navigate to="/" /> : <Signup />} />
       <Route path="/termos" element={<Terms />} />
-      
+
       {/* Admin Routes */}
-      <Route 
-        path="/admin/login" 
-        element={profile?.role === 'admin' ? <Navigate to="/admin/painel" /> : <AdminLogin />} 
+      <Route
+        path="/admin/login"
+        element={profile?.role === 'admin' ? <Navigate to="/admin/painel" /> : <AdminLogin />}
       />
       <Route
         path="/admin/painel"
@@ -95,6 +96,15 @@ function AppRoutes() {
           ) : (
             <Navigate to="/login" />
           )
+        }
+      />
+
+      <Route
+        path="/empresa/:slug"
+        element={
+          <MainLayout user={user} onLogout={signOut}>
+            <CompanyDetail />
+          </MainLayout>
         }
       />
 
