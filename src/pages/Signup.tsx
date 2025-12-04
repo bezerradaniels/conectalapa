@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plane, Briefcase, Globe, BarChart3, Folder, Handshake, Users, MessageCircle, Search, FileText, Luggage, Asterisk, ArrowLeft } from 'lucide-react';
-import { Input } from '../components/Input';
-import { Button } from '../components/Button';
+import { Plane, Briefcase, Globe, BarChart3, Users, MessageCircle, Search, Asterisk, ArrowLeft } from 'lucide-react';
+
 import { useAuth } from '../contexts/AuthContext';
 
 export const Signup: React.FC = () => {
@@ -23,7 +22,7 @@ export const Signup: React.FC = () => {
             setLoading(false);
             navigate('/painel');
         }
-        
+
         // Timeout de segurança: se após 5s o perfil não carregar, desbloqueia o botão
         if (justSignedUp && !profile) {
             const timeout = setTimeout(() => {
@@ -194,7 +193,7 @@ export const Signup: React.FC = () => {
                         <ArrowLeft size={18} />
                         <span className="text-sm font-medium">Voltar para a home</span>
                     </Link>
-                    
+
                     <h1 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-3 leading-tight">
                         Crie sua conta
                     </h1>
@@ -304,8 +303,8 @@ export const Signup: React.FC = () => {
 
                     <div className="mt-5 text-center">
                         <span className="text-neutral-600 text-sm">Já possui conta? </span>
-                        <Link 
-                            to="/login" 
+                        <Link
+                            to="/login"
                             className="text-[#00A82D] font-semibold hover:text-[#0A7A27] hover:underline transition-colors cursor-pointer"
                         >
                             Entrar

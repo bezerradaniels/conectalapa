@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Search, MapPin, Music, DollarSign, Filter, X } from 'lucide-react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -18,7 +17,7 @@ const EVENT_TYPES = [
 
 export const EventsList: React.FC = () => {
     const [events, setEvents] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedType, setSelectedType] = useState('');
     const [showFilters, setShowFilters] = useState(false);
@@ -33,7 +32,7 @@ export const EventsList: React.FC = () => {
 
     const loadEvents = async () => {
         try {
-            setLoading(true);
+
             const { data } = await supabase
                 .from('events')
                 .select('*')
@@ -44,8 +43,6 @@ export const EventsList: React.FC = () => {
             setEvents(data || []);
         } catch (error) {
             console.error('Error loading events:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -79,16 +76,7 @@ export const EventsList: React.FC = () => {
 
     const hasActiveFilters = searchTerm || selectedType;
 
-    if (loading) {
-        return (
-            <div className="max-w-[1140px] mx-auto py-8 px-6">
-                <div className="text-center py-12">
-                    <div className="inline-block w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-[var(--color-neutral-500)]">Carregando eventos...</p>
-                </div>
-            </div>
-        );
-    }
+
 
     return (
         <div className="max-w-[1140px] mx-auto py-8 px-6">
@@ -231,11 +219,13 @@ export const EventsList: React.FC = () => {
                                         )}
                                     </div>
 
-                                    <Link to={`/evento/${event.id}`}>
-                                        <Button variant="secondary" className="w-full cursor-pointer text-sm">
-                                            Ver Detalhes
-                                        </Button>
-                                    </Link>
+                                    <Button
+                                        variant="secondary"
+                                        className="w-full cursor-pointer text-sm"
+                                        onClick={() => alert('Funcionalidade em desenvolvimento')}
+                                    >
+                                        Ver Detalhes
+                                    </Button>
                                 </div>
                             </div>
                         </Card>

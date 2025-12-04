@@ -9,7 +9,7 @@ export const CompaniesList: React.FC = () => {
     const [companies, setCompanies] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
     const [neighborhoods, setNeighborhoods] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedNeighborhood, setSelectedNeighborhood] = useState('');
@@ -25,7 +25,7 @@ export const CompaniesList: React.FC = () => {
 
     const loadData = async () => {
         try {
-            setLoading(true);
+
 
             // Carregar empresas ativas
             const { data: companiesData } = await supabase
@@ -58,8 +58,6 @@ export const CompaniesList: React.FC = () => {
             setNeighborhoods(neighborhoodsData || []);
         } catch (error) {
             console.error('Error loading companies:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -101,16 +99,7 @@ export const CompaniesList: React.FC = () => {
 
     const hasActiveFilters = searchTerm || selectedCategory || selectedNeighborhood;
 
-    if (loading) {
-        return (
-            <div className="max-w-[1140px] mx-auto py-8 px-6">
-                <div className="text-center py-12">
-                    <div className="inline-block w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-[var(--color-neutral-500)]">Carregando empresas...</p>
-                </div>
-            </div>
-        );
-    }
+
 
     return (
         <div className="max-w-[1140px] mx-auto py-8 px-6">
@@ -261,7 +250,7 @@ export const CompaniesList: React.FC = () => {
                                     {company.summary}
                                 </p>
                             )}
-                            <Link to={`/empresa/${company.id}`}>
+                            <Link to={`/empresa/${company.slug || company.id}`}>
                                 <Button variant="secondary" className="w-full cursor-pointer">
                                     Ver Detalhes
                                 </Button>

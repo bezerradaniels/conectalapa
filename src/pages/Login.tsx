@@ -19,7 +19,7 @@ export const Login: React.FC = () => {
             setLoading(false);
             navigate('/painel');
         }
-        
+
         // Timeout de segurança: se após 5s o perfil não carregar, desbloqueia o botão
         if (justLoggedIn && !profile) {
             const timeout = setTimeout(() => {
@@ -95,12 +95,13 @@ export const Login: React.FC = () => {
                     </form>
 
                     <div className="mt-6 text-center space-y-3">
-                        <Link
-                            to="/esqueci-senha"
-                            className="text-sm text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] transition-colors cursor-pointer"
+                        <button
+                            type="button"
+                            onClick={() => alert('Funcionalidade em desenvolvimento')}
+                            className="text-sm text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] transition-colors cursor-pointer bg-transparent border-none p-0"
                         >
                             Esqueci a senha
-                        </Link>
+                        </button>
                         <p className="text-sm text-[var(--color-neutral-500)]">
                             Ainda não tem conta?{' '}
                             <Link

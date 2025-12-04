@@ -35,7 +35,8 @@ export const CompanyDetail: React.FC = () => {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     const [company, setCompany] = useState<Company | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showGallery, setShowGallery] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
@@ -45,8 +46,8 @@ export const CompanyDetail: React.FC = () => {
     }, [slug]);
 
     const loadCompany = async () => {
+        setIsLoading(true);
         try {
-            setLoading(true);
 
             // Buscar empresa pelo slug
             const { data, error } = await supabase
@@ -57,24 +58,38 @@ export const CompanyDetail: React.FC = () => {
                 .single();
 
             if (error) {
-                // Se não encontrar por slug, tentar por nome (fallback para dados antigos)
-                const { data: fallbackData, error: fallbackError } = await supabase
+                // Se não encontrar por slug, tentar por ID
+                const { data: idData, error: idError } = await supabase
                     .from('companies')
                     .select('*')
                     .eq('status', 'active')
-                    .ilike('name', `%${slug?.replace(/-/g, ' ')}%`)
+                    .eq('id', slug)
                     .single();
 
-                if (fallbackError) throw fallbackError;
-                setCompany(fallbackData);
+                if (!idError && idData) {
+                    setCompany(idData);
+                    setIsLoading(false);
+                } else {
+                    // Se não encontrar por ID, tentar por nome (fallback para dados antigos)
+                    const { data: fallbackData, error: fallbackError } = await supabase
+                        .from('companies')
+                        .select('*')
+                        .eq('status', 'active')
+                        .ilike('name', `%${slug?.replace(/-/g, ' ')}%`)
+                        .single();
+
+                    if (fallbackError) throw fallbackError;
+                    setCompany(fallbackData);
+                    setIsLoading(false);
+                }
             } else {
                 setCompany(data);
+                setIsLoading(false);
             }
         } catch (error) {
             console.error('Error loading company:', error);
-            navigate('/empresas');
-        } finally {
-            setLoading(false);
+            setIsLoading(false);
+            // Não redireciona automaticamente, deixa o usuário ver a mensagem
         }
     };
 
@@ -111,15 +126,10 @@ export const CompanyDetail: React.FC = () => {
         setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 
-    if (loading) {
-        return (
-            <div className="max-w-[1140px] mx-auto py-8 px-6">
-                <div className="text-center py-12">
-                    <div className="inline-block w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-[var(--color-neutral-500)]">Carregando...</p>
-                </div>
-            </div>
-        );
+
+
+    if (isLoading) {
+        return null; // Não mostra nada enquanto carrega
     }
 
     if (!company) {
@@ -323,7 +333,7 @@ export const CompanyDetail: React.FC = () => {
                                 Entre em Contato
                             </h3>
 
-                            <div className="space-y-3">
+                            <div className="space-y-3 gap-3">
                                 {company.phone && (
                                     <a href={`tel:${company.phone}`}>
                                         <Button variant="primary" className="w-full flex items-center justify-center gap-2">

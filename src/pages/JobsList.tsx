@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Search, Briefcase, DollarSign, Calendar, X } from 'lucide-react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -7,7 +6,7 @@ import { supabase } from '../lib/supabase';
 
 export const JobsList: React.FC = () => {
     const [jobs, setJobs] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
@@ -20,7 +19,7 @@ export const JobsList: React.FC = () => {
 
     const loadJobs = async () => {
         try {
-            setLoading(true);
+
             const { data } = await supabase
                 .from('jobs')
                 .select('*')
@@ -30,8 +29,6 @@ export const JobsList: React.FC = () => {
             setJobs(data || []);
         } catch (error) {
             console.error('Error loading jobs:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -57,16 +54,7 @@ export const JobsList: React.FC = () => {
         setSearchTerm('');
     };
 
-    if (loading) {
-        return (
-            <div className="max-w-[1140px] mx-auto py-8 px-6">
-                <div className="text-center py-12">
-                    <div className="inline-block w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-[var(--color-neutral-500)]">Carregando vagas...</p>
-                </div>
-            </div>
-        );
-    }
+
 
     return (
         <div className="max-w-[1140px] mx-auto py-8 px-6">
@@ -158,11 +146,15 @@ export const JobsList: React.FC = () => {
                                     </p>
                                 </div>
                                 <div className="flex md:flex-col gap-2">
-                                    <Link to={`/vaga/${job.id}`} className="flex-1 md:flex-initial">
-                                        <Button variant="primary" className="w-full cursor-pointer">
+                                    <div className="flex-1 md:flex-initial">
+                                        <Button
+                                            variant="primary"
+                                            className="w-full cursor-pointer"
+                                            onClick={() => alert('Funcionalidade em desenvolvimento')}
+                                        >
                                             Ver Vaga
                                         </Button>
-                                    </Link>
+                                    </div>
                                 </div>
                             </div>
                         </Card>

@@ -12,7 +12,7 @@ export const AdminDashboard: React.FC = () => {
     const [pendingCompanies, setPendingCompanies] = useState<any[]>([]);
     const [pendingJobs, setPendingJobs] = useState<any[]>([]);
     const [pendingPackages, setPendingPackages] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+
     const [previewItem, setPreviewItem] = useState<{ type: string; data: any } | null>(null);
 
     useEffect(() => {
@@ -24,7 +24,7 @@ export const AdminDashboard: React.FC = () => {
     }, [profile, navigate]);
 
     const loadPendingItems = async () => {
-        setLoading(true);
+
         try {
             // Empresas pendentes
             const { data: companies } = await supabase
@@ -52,8 +52,6 @@ export const AdminDashboard: React.FC = () => {
             setPendingPackages(packages || []);
         } catch (error) {
             console.error('Erro ao carregar itens pendentes:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -105,11 +103,11 @@ export const AdminDashboard: React.FC = () => {
         return (
             <>
                 {/* Backdrop */}
-                <div 
+                <div
                     className="fixed inset-0 bg-black/50 z-50 backdrop-blur-sm"
                     onClick={closePreview}
                 />
-                
+
                 {/* Modal */}
                 <div className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-3xl md:max-h-[90vh] bg-white rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col">
                     {/* Header */}
@@ -237,14 +235,14 @@ export const AdminDashboard: React.FC = () => {
                     {/* Footer with Actions */}
                     <div className="border-t border-[var(--color-neutral-200)] p-6 bg-[var(--color-neutral-50)]">
                         <div className="flex justify-end gap-3">
-                            <Button 
+                            <Button
                                 variant="secondary"
                                 onClick={closePreview}
                                 className="cursor-pointer"
                             >
                                 Fechar
                             </Button>
-                            <Button 
+                            <Button
                                 variant="ghost"
                                 onClick={() => {
                                     const tableName = type === 'company' ? 'companies' : type === 'job' ? 'jobs' : 'travel_packages';
@@ -256,7 +254,7 @@ export const AdminDashboard: React.FC = () => {
                                 <XCircle size={18} className="mr-2" />
                                 Rejeitar
                             </Button>
-                            <Button 
+                            <Button
                                 onClick={() => {
                                     const tableName = type === 'company' ? 'companies' : type === 'job' ? 'jobs' : 'travel_packages';
                                     handleApprove(tableName, data.id);
@@ -274,14 +272,14 @@ export const AdminDashboard: React.FC = () => {
         );
     };
 
-    const TableSection = ({ 
-        title, 
-        data, 
+    const TableSection = ({
+        title,
+        data,
         tableName,
-        nameField 
-    }: { 
-        title: string; 
-        data: any[]; 
+        nameField
+    }: {
+        title: string;
+        data: any[];
         tableName: string;
         nameField: string;
     }) => (
@@ -292,7 +290,7 @@ export const AdminDashboard: React.FC = () => {
                     {data.length} pendente{data.length !== 1 ? 's' : ''}
                 </span>
             </div>
-            
+
             {data.length === 0 ? (
                 <div className="text-center py-8 text-[var(--color-neutral-500)]">
                     ✓ Nenhuma solicitação pendente
@@ -330,29 +328,29 @@ export const AdminDashboard: React.FC = () => {
                                     </td>
                                     <td className="py-4 px-4">
                                         <div className="flex justify-end gap-2">
-                                            <Button 
-                                                variant="ghost" 
-                                                className="p-2 cursor-pointer hover:bg-green-50" 
+                                            <Button
+                                                variant="ghost"
+                                                className="p-2 cursor-pointer hover:bg-green-50"
                                                 title="Aprovar"
                                                 onClick={() => handleApprove(tableName, item.id)}
                                             >
                                                 <CheckCircle size={18} className="text-green-600" />
                                             </Button>
-                                            <Button 
-                                                variant="ghost" 
-                                                className="p-2 cursor-pointer hover:bg-red-50" 
+                                            <Button
+                                                variant="ghost"
+                                                className="p-2 cursor-pointer hover:bg-red-50"
                                                 title="Rejeitar"
                                                 onClick={() => handleReject(tableName, item.id)}
                                             >
                                                 <XCircle size={18} className="text-red-600" />
                                             </Button>
-                                            <Button 
-                                                variant="ghost" 
-                                                className="p-2 cursor-pointer hover:bg-blue-50" 
+                                            <Button
+                                                variant="ghost"
+                                                className="p-2 cursor-pointer hover:bg-blue-50"
                                                 title="Visualizar"
                                                 onClick={() => {
-                                                    const type = tableName === 'companies' ? 'company' : 
-                                                                tableName === 'jobs' ? 'job' : 'package';
+                                                    const type = tableName === 'companies' ? 'company' :
+                                                        tableName === 'jobs' ? 'job' : 'package';
                                                     openPreview(type, item);
                                                 }}
                                             >
@@ -369,15 +367,7 @@ export const AdminDashboard: React.FC = () => {
         </Card>
     );
 
-    if (loading) {
-        return (
-            <div className="max-w-[1140px] mx-auto py-8 px-6">
-                <div className="text-center py-12">
-                    <p className="text-[var(--color-neutral-500)]">Carregando solicitações...</p>
-                </div>
-            </div>
-        );
-    }
+
 
     const totalPending = pendingCompanies.length + pendingJobs.length + pendingPackages.length;
 
@@ -400,23 +390,23 @@ export const AdminDashboard: React.FC = () => {
                 )}
             </div>
 
-            <TableSection 
-                title="Empresas Pendentes" 
-                data={pendingCompanies} 
+            <TableSection
+                title="Empresas Pendentes"
+                data={pendingCompanies}
                 tableName="companies"
                 nameField="name"
             />
-            
-            <TableSection 
-                title="Vagas Pendentes" 
-                data={pendingJobs} 
+
+            <TableSection
+                title="Vagas Pendentes"
+                data={pendingJobs}
                 tableName="jobs"
                 nameField="title"
             />
-            
-            <TableSection 
-                title="Pacotes de Viagem Pendentes" 
-                data={pendingPackages} 
+
+            <TableSection
+                title="Pacotes de Viagem Pendentes"
+                data={pendingPackages}
                 tableName="travel_packages"
                 nameField="destination"
             />

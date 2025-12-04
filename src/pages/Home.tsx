@@ -5,7 +5,7 @@ import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { useAuth } from '../contexts/AuthContext';
-import { generateSlug } from '../lib/utils';
+import { supabase } from '../lib/supabase';
 
 export const Home: React.FC = () => {
     const { profile } = useAuth();
@@ -19,35 +19,25 @@ export const Home: React.FC = () => {
         { id: 3, title: 'Destaque 3', image: 'https://via.placeholder.com/800x400/00A82D/FFFFFF?text=Destaque+3' },
     ];
 
-    const companies = [
-        { id: 1, name: 'Empresa Exemplo 1', category: 'Tecnologia', image: 'https://via.placeholder.com/300x200/FAF8F5/00A82D?text=Empresa+1' },
-        { id: 2, name: 'Empresa Exemplo 2', category: 'Comércio', image: 'https://via.placeholder.com/300x200/FAF8F5/00A82D?text=Empresa+2' },
-        { id: 3, name: 'Empresa Exemplo 3', category: 'Serviços', image: 'https://via.placeholder.com/300x200/FAF8F5/00A82D?text=Empresa+3' },
-    ];
+    // Dados reais
+    const [companies, setCompanies] = useState<any[]>([]);
+    const [jobs] = useState<any[]>([]);
+    const [packages] = useState<any[]>([]);
+    const [events] = useState<any[]>([]);
+    const [foods] = useState<any[]>([]);
 
-    const jobs = [
-        { id: 1, title: 'Desenvolvedor React', company: 'Tech Solutions', salary: 'R$ 5.000,00' },
-        { id: 2, title: 'Designer UI/UX', company: 'Creative Agency', salary: 'A combinar' },
-        { id: 3, title: 'Gerente de Vendas', company: 'Comércio Local', salary: 'R$ 3.500,00' },
-    ];
-
-    const packages = [
-        { id: 1, destination: 'Salvador', date: '15/12/2025', agency: 'LapaTur', image: 'https://via.placeholder.com/300x200/FAF8F5/00A82D?text=Salvador' },
-        { id: 2, destination: 'Chapada Diamantina', date: '20/12/2025', agency: 'Aventura Tours', image: 'https://via.placeholder.com/300x200/FAF8F5/00A82D?text=Chapada' },
-        { id: 3, destination: 'Porto Seguro', date: '01/01/2026', agency: 'Viagens BJL', image: 'https://via.placeholder.com/300x200/FAF8F5/00A82D?text=Porto+Seguro' },
-    ];
-
-    const events = [
-        { id: 1, name: 'Show Sertanejo ao Vivo', date: '05/12/2025', location: 'Praça da Basílica', type: 'show', isFree: false },
-        { id: 2, name: 'Corrida da Fé', date: '10/12/2025', location: 'Centro', type: 'esportivo', isFree: true },
-        { id: 3, name: 'Festa Junina Tradicional', date: '24/12/2025', location: 'Clube Recreativo', type: 'festa', isFree: false },
-    ];
-
-    const foods = [
-        { id: 1, name: 'Restaurante Sabor da Terra', types: ['restaurante', 'comida regional'], image: 'https://via.placeholder.com/300x200/FAF8F5/00A82D?text=Restaurante' },
-        { id: 2, name: 'Lanchonete do Centro', types: ['lanchonete'], image: 'https://via.placeholder.com/300x200/FAF8F5/00A82D?text=Lanchonete' },
-        { id: 3, name: 'Pizzaria Bella Massa', types: ['pizzaria'], image: 'https://via.placeholder.com/300x200/FAF8F5/00A82D?text=Pizzaria' },
-    ];
+    React.useEffect(() => {
+        const fetchCompanies = async () => {
+            const { data, error } = await supabase
+                .from('companies')
+                .select('id, name, category, logo_url, image, slug')
+                .eq('status', 'active')
+                .order('created_at', { ascending: false })
+                .limit(6);
+            if (!error && data) setCompanies(data);
+        };
+        fetchCompanies();
+    }, []);
 
     const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
     const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
@@ -131,21 +121,27 @@ export const Home: React.FC = () => {
                     <Button variant="ghost" onClick={() => navigate('/empresas')} className="cursor-pointer">Ver mais →</Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {companies.map((company) => (
-                        <Card
-                            key={company.id}
-                            className="p-0 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-                            onClick={() => navigate(`/empresa/${generateSlug(company.name)}`)}
-                        >
-                            <img src={company.image} alt={company.name} className="w-full h-40 object-cover" />
-                            <div className="p-4">
-                                <h3 className="font-semibold text-[var(--color-neutral-900)] mb-1">{company.name}</h3>
-                                <span className="inline-block px-3 py-1 bg-[var(--color-primary-light)] text-[var(--color-primary-dark)] text-sm rounded-full">
-                                    {company.category}
-                                </span>
-                            </div>
-                        </Card>
-                    ))}
+                    {companies.length === 0 ? (
+                        <div className="col-span-3 text-center text-[var(--color-neutral-400)] py-8">Nenhuma empresa encontrada.</div>
+                    ) : (
+                        companies.map((company) => (
+                            <Card
+                                key={company.id}
+                                className="p-0 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                                onClick={() => navigate(`/empresa/${company.slug || company.id}`)}
+                            >
+                                <img src={company.logo_url || company.image || '/logo-placeholder.svg'} alt={company.name} className="w-full h-40 object-cover bg-[var(--color-neutral-100)]" />
+                                <div className="p-4">
+                                    <h3 className="font-semibold text-[var(--color-neutral-900)] mb-1">{company.name}</h3>
+                                    {company.category && (
+                                        <span className="inline-block px-3 py-1 bg-[var(--color-primary-light)] text-[var(--color-primary-dark)] text-sm rounded-full">
+                                            {company.category}
+                                        </span>
+                                    )}
+                                </div>
+                            </Card>
+                        ))
+                    )}
                 </div>
             </section>
 
@@ -233,7 +229,7 @@ export const Home: React.FC = () => {
                             <div className="p-4">
                                 <h3 className="font-semibold text-[var(--color-neutral-900)] mb-2">{food.name}</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {food.types.slice(0, 2).map((type, index) => (
+                                    {food.types.slice(0, 2).map((type: string, index: number) => (
                                         <span
                                             key={index}
                                             className="inline-block px-3 py-1 bg-[var(--color-primary-light)] text-[var(--color-primary-dark)] text-sm rounded-full capitalize"

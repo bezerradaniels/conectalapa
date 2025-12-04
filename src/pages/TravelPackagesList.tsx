@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Search, Palmtree, MapPin, Calendar, X } from 'lucide-react';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -7,7 +6,7 @@ import { supabase } from '../lib/supabase';
 
 export const TravelPackagesList: React.FC = () => {
     const [packages, setPackages] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
@@ -20,7 +19,7 @@ export const TravelPackagesList: React.FC = () => {
 
     const loadPackages = async () => {
         try {
-            setLoading(true);
+
             const { data } = await supabase
                 .from('travel_packages')
                 .select('*')
@@ -30,8 +29,6 @@ export const TravelPackagesList: React.FC = () => {
             setPackages(data || []);
         } catch (error) {
             console.error('Error loading packages:', error);
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -57,16 +54,7 @@ export const TravelPackagesList: React.FC = () => {
         setSearchTerm('');
     };
 
-    if (loading) {
-        return (
-            <div className="max-w-[1140px] mx-auto py-8 px-6">
-                <div className="text-center py-12">
-                    <div className="inline-block w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-[var(--color-neutral-500)]">Carregando viagens...</p>
-                </div>
-            </div>
-        );
-    }
+
 
     return (
         <div className="max-w-[1140px] mx-auto py-8 px-6">
@@ -158,11 +146,13 @@ export const TravelPackagesList: React.FC = () => {
                                     {pkg.description}
                                 </p>
                             )}
-                            <Link to={`/viagem/${pkg.id}`}>
-                                <Button variant="primary" className="w-full cursor-pointer">
-                                    Ver Detalhes
-                                </Button>
-                            </Link>
+                            <Button
+                                variant="primary"
+                                className="w-full cursor-pointer"
+                                onClick={() => alert('Funcionalidade em desenvolvimento')}
+                            >
+                                Ver Detalhes
+                            </Button>
                         </Card>
                     ))}
                 </div>

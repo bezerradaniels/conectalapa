@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Building2, MapPin, Phone, Tag, FileText, Image as ImageIcon, ArrowLeft, Store, TrendingUp, Users } from 'lucide-react';
+import { Building2, Image as ImageIcon, ArrowLeft, Store, TrendingUp, Users } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -15,7 +15,7 @@ export const CompanyForm: React.FC = () => {
     const [logo, setLogo] = useState<File | null>(null);
     const [coverImage, setCoverImage] = useState<File | null>(null);
     const [galleryImages, setGalleryImages] = useState<File[]>([]);
-    
+
     const [formData, setFormData] = useState({
         name: '',
         category_id: '',
@@ -113,15 +113,15 @@ export const CompanyForm: React.FC = () => {
             setError('Máximo de 10 imagens na galeria');
             return;
         }
-        
+
         const validTypes = ['image/png', 'image/jpeg', 'image/webp'];
         const validFiles = files.filter(file => validTypes.includes(file.type));
-        
+
         if (validFiles.length !== files.length) {
             setError('Todas as imagens devem ser PNG, JPG ou WEBP');
             return;
         }
-        
+
         setGalleryImages([...galleryImages, ...validFiles]);
         setError('');
     };
@@ -233,7 +233,7 @@ export const CompanyForm: React.FC = () => {
                         <ArrowLeft size={18} />
                         <span className="text-sm font-medium">Voltar para o painel</span>
                     </Link>
-                    
+
                     <h1 className="text-3xl lg:text-4xl font-bold text-neutral-900 mb-3 leading-tight">
                         Cadastre sua empresa
                     </h1>
@@ -245,17 +245,15 @@ export const CompanyForm: React.FC = () => {
                     <div className="flex items-center justify-center gap-2 mb-6">
                         {[1, 2, 3, 4].map((step) => (
                             <div key={step} className="flex items-center">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                                    currentStep >= step 
-                                        ? 'bg-[#00A82D] text-white' 
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${currentStep >= step
+                                        ? 'bg-[#00A82D] text-white'
                                         : 'bg-gray-200 text-gray-500'
-                                }`}>
+                                    }`}>
                                     {step}
                                 </div>
                                 {step < 4 && (
-                                    <div className={`w-8 h-1 mx-1 transition-all ${
-                                        currentStep > step ? 'bg-[#00A82D]' : 'bg-gray-200'
-                                    }`} />
+                                    <div className={`w-8 h-1 mx-1 transition-all ${currentStep > step ? 'bg-[#00A82D]' : 'bg-gray-200'
+                                        }`} />
                                 )}
                             </div>
                         ))}
@@ -422,9 +420,9 @@ export const CompanyForm: React.FC = () => {
                                         <label htmlFor="logo-upload" className="cursor-pointer">
                                             {logo ? (
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <img 
-                                                        src={URL.createObjectURL(logo)} 
-                                                        alt="Logo preview" 
+                                                    <img
+                                                        src={URL.createObjectURL(logo)}
+                                                        alt="Logo preview"
                                                         className="w-20 h-20 object-cover rounded-lg"
                                                     />
                                                     <div className="text-left">
@@ -459,9 +457,9 @@ export const CompanyForm: React.FC = () => {
                                         <label htmlFor="cover-upload" className="cursor-pointer">
                                             {coverImage ? (
                                                 <div>
-                                                    <img 
-                                                        src={URL.createObjectURL(coverImage)} 
-                                                        alt="Cover preview" 
+                                                    <img
+                                                        src={URL.createObjectURL(coverImage)}
+                                                        alt="Cover preview"
                                                         className="w-full h-24 object-cover rounded-lg mb-2"
                                                     />
                                                     <p className="text-sm font-semibold text-[#00A82D]">✓ Capa adicionada</p>
@@ -501,13 +499,13 @@ export const CompanyForm: React.FC = () => {
                                             <p className="text-xs text-gray-400 mt-1">PNG, JPG ou WEBP</p>
                                         </label>
                                     </div>
-                                    
+
                                     {galleryImages.length > 0 && (
                                         <div className="grid grid-cols-3 gap-2 mt-3">
                                             {galleryImages.map((img, index) => (
                                                 <div key={index} className="relative group">
-                                                    <img 
-                                                        src={URL.createObjectURL(img)} 
+                                                    <img
+                                                        src={URL.createObjectURL(img)}
                                                         alt={`Gallery ${index + 1}`}
                                                         className="w-full h-20 object-cover rounded-lg"
                                                     />

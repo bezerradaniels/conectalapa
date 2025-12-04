@@ -22,8 +22,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
     const [companies, setCompanies] = useState<any[]>([]);
     const [jobs, setJobs] = useState<any[]>([]);
     const [packages, setPackages] = useState<any[]>([]);
-    const [events, setEvents] = useState<any[]>([]);
-    const [foods, setFoods] = useState<any[]>([]);
+    const [events] = useState<any[]>([]);
+    const [foods] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [toasts, setToasts] = useState<Toast[]>([]);
