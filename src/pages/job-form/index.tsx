@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Briefcase, Building2, ArrowLeft, Mail, MessageCircle, Linkedin } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 export const JobForm: React.FC = () => {
     const navigate = useNavigate();
@@ -16,6 +17,8 @@ export const JobForm: React.FC = () => {
         company_name: '',
         salary: '',
         deadline: '',
+        work_type: '',
+        work_location: '',
         application_email: false,
         application_whatsapp: false,
         application_in_person: false,
@@ -37,7 +40,7 @@ export const JobForm: React.FC = () => {
     };
 
     const validateStep1 = () => {
-        return formData.title && formData.company_name;
+        return formData.title && formData.company_name && formData.work_type && formData.work_location;
     };
 
     const validateStep2 = () => {
@@ -50,9 +53,31 @@ export const JobForm: React.FC = () => {
         setLoading(true);
 
         try {
-            // TODO: Inserção no banco
+            if (!user) throw new Error('Usuário não autenticado');
+
+            const { error: insertError } = await supabase.from('jobs').insert({
+                title: formData.title,
+                company_name: formData.company_name,
+                salary: formData.salary,
+                deadline: formData.deadline || null,
+                work_type: formData.work_type,
+                work_location: formData.work_location,
+                description: formData.description,
+                how_to_apply: {
+                    email: formData.application_email,
+                    whatsapp: formData.application_whatsapp,
+                    in_person: formData.application_in_person,
+                    linkedin: formData.application_linkedin
+                },
+                status: 'pending',
+                user_id: user.id
+            });
+
+            if (insertError) throw insertError;
+
             navigate('/painel');
         } catch (err: any) {
+            console.error('Erro ao cadastrar vaga:', err);
             setError(err.message || 'Erro ao cadastrar vaga');
         } finally {
             setLoading(false);
@@ -60,10 +85,10 @@ export const JobForm: React.FC = () => {
     };
 
     return (
-        <div className="h-screen bg-[#FAF8F5] flex items-center justify-center px-4 py-4 overflow-hidden">
-            <div className="w-full max-w-6xl h-[calc(100vh-2rem)] bg-white/90 backdrop-blur-sm rounded-[2rem] shadow-2xl flex flex-col lg:flex-row overflow-hidden">
+        <div className="h-screen bg-cream flex items-center justify-center px-4 py-4 overflow-hidden">
+            <div className="w-full max-w-6xl h-[calc(100vh-2rem)] bg-white/90 backdrop-blur-sm rounded-4xl shadow-2xl flex flex-col lg:flex-row overflow-hidden">
                 {/* Visual Section */}
-                <div className="relative flex-1 bg-gradient-to-br from-[#FAF8F5] to-[#F4F4F4] flex items-center justify-center p-8 lg:p-12">
+                <div className="relative flex-1 bg-linear-to-br from-cream to-neutral-100 flex items-center justify-center p-8 lg:p-12">
                     <div className="relative z-0">
                         <img
                             src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=600&q=80"
@@ -140,7 +165,7 @@ export const JobForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Nome da Vaga</label>
                                     <input
                                         type="text"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         placeholder="Ex: Desenvolvedor Frontend"
                                         value={formData.title}
                                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -152,7 +177,7 @@ export const JobForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Nome da Empresa</label>
                                     <input
                                         type="text"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         placeholder="Nome da sua empresa"
                                         value={formData.company_name}
                                         onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
@@ -164,7 +189,7 @@ export const JobForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Salário</label>
                                     <input
                                         type="text"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         placeholder="Ex: R$ 3.000,00 ou A definir"
                                         value={formData.salary}
                                         onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
@@ -175,17 +200,47 @@ export const JobForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Prazo para Candidatura</label>
                                     <input
                                         type="date"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         value={formData.deadline}
                                         onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                                     />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Tipo de Contratação</label>
+                                    <select
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200 cursor-pointer"
+                                        value={formData.work_type}
+                                        onChange={(e) => setFormData({ ...formData, work_type: e.target.value })}
+                                        required
+                                    >
+                                        <option value="">Selecione o tipo</option>
+                                        <option value="tempo-integral">Tempo Integral</option>
+                                        <option value="meio-periodo">Meio Período</option>
+                                        <option value="temporario">Temporário</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Modalidade de Trabalho</label>
+                                    <select
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200 cursor-pointer"
+                                        value={formData.work_location}
+                                        onChange={(e) => setFormData({ ...formData, work_location: e.target.value })}
+                                        required
+                                    >
+                                        <option value="">Selecione a modalidade</option>
+                                        <option value="presencial">Presencial</option>
+                                        <option value="remoto">Remoto</option>
+                                        <option value="hibrido">Híbrido</option>
+                                    </select>
                                 </div>
 
                                 <button
                                     type="button"
                                     onClick={nextStep}
                                     disabled={!validateStep1()}
-                                    className="w-full h-12 mt-4 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#D8F5E0] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                    className="w-full h-12 mt-4 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary-light disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 >
                                     Próximo
                                 </button>
@@ -198,7 +253,7 @@ export const JobForm: React.FC = () => {
                                 <div>
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Descrição da Vaga</label>
                                     <textarea
-                                        className="w-full h-40 px-4 py-3 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200 resize-none"
+                                        className="w-full h-40 px-4 py-3 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200 resize-none"
                                         placeholder="Descreva as responsabilidades, requisitos e benefícios da vaga..."
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -218,7 +273,7 @@ export const JobForm: React.FC = () => {
                                         type="button"
                                         onClick={nextStep}
                                         disabled={!validateStep2()}
-                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#D8F5E0] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary-light disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         Próximo
                                     </button>
@@ -238,7 +293,7 @@ export const JobForm: React.FC = () => {
                                                 type="checkbox"
                                                 checked={formData.application_email}
                                                 onChange={(e) => setFormData({ ...formData, application_email: e.target.checked })}
-                                                className="w-5 h-5 rounded border-2 border-[#E7E7E7] text-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] cursor-pointer"
+                                                className="w-5 h-5 rounded border-2 border-neutral-200 text-[#00A82D] focus:ring-2 focus:ring-primary-light cursor-pointer"
                                             />
                                             <Mail size={20} className="text-[#00A82D]" />
                                             <span className="text-sm font-medium text-neutral-800">Enviar e-mail</span>
@@ -249,7 +304,7 @@ export const JobForm: React.FC = () => {
                                                 type="checkbox"
                                                 checked={formData.application_whatsapp}
                                                 onChange={(e) => setFormData({ ...formData, application_whatsapp: e.target.checked })}
-                                                className="w-5 h-5 rounded border-2 border-[#E7E7E7] text-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] cursor-pointer"
+                                                className="w-5 h-5 rounded border-2 border-neutral-200 text-[#00A82D] focus:ring-2 focus:ring-primary-light cursor-pointer"
                                             />
                                             <MessageCircle size={20} className="text-[#00A82D]" />
                                             <span className="text-sm font-medium text-neutral-800">Falar no WhatsApp</span>
@@ -260,7 +315,7 @@ export const JobForm: React.FC = () => {
                                                 type="checkbox"
                                                 checked={formData.application_in_person}
                                                 onChange={(e) => setFormData({ ...formData, application_in_person: e.target.checked })}
-                                                className="w-5 h-5 rounded border-2 border-[#E7E7E7] text-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] cursor-pointer"
+                                                className="w-5 h-5 rounded border-2 border-neutral-200 text-[#00A82D] focus:ring-2 focus:ring-primary-light cursor-pointer"
                                             />
                                             <Building2 size={20} className="text-[#00A82D]" />
                                             <span className="text-sm font-medium text-neutral-800">Deixar currículo na empresa</span>
@@ -271,7 +326,7 @@ export const JobForm: React.FC = () => {
                                                 type="checkbox"
                                                 checked={formData.application_linkedin}
                                                 onChange={(e) => setFormData({ ...formData, application_linkedin: e.target.checked })}
-                                                className="w-5 h-5 rounded border-2 border-[#E7E7E7] text-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] cursor-pointer"
+                                                className="w-5 h-5 rounded border-2 border-neutral-200 text-[#00A82D] focus:ring-2 focus:ring-primary-light cursor-pointer"
                                             />
                                             <Linkedin size={20} className="text-[#00A82D]" />
                                             <span className="text-sm font-medium text-neutral-800">Inscrição pelo LinkedIn</span>
@@ -300,7 +355,7 @@ export const JobForm: React.FC = () => {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         {loading ? 'Cadastrando...' : 'Cadastrar Vaga'}
                                     </button>

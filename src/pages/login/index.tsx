@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Input } from '../components/Input';
-import { Button } from '../components/Button';
-import { useAuth } from '../contexts/AuthContext';
+import { Input } from '../../components/Input';
+import { Button } from '../../components/Button';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const Login: React.FC = () => {
     const navigate = useNavigate();

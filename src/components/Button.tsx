@@ -11,13 +11,13 @@ export const Button: React.FC<ButtonProps> = ({
     className = '',
     ...props
 }) => {
-    const baseStyles = 'px-5 py-2.5 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseStyles = 'px-5 py-2.5 rounded-lg font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed';
 
     const variants = {
-        primary: 'bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)]',
-        secondary: 'bg-white border border-[var(--color-neutral-300)] text-[var(--color-neutral-900)] hover:bg-[var(--color-neutral-100)]',
-        ghost: 'bg-transparent text-[var(--color-primary)] hover:bg-[var(--color-neutral-100)]',
-        danger: 'bg-[var(--color-danger)] text-white hover:bg-[#A4031F]'
+        primary: 'bg-primary text-white hover:bg-primary-dark',
+        secondary: 'bg-white border border-neutral-300 text-neutral-900 hover:bg-neutral-100',
+        ghost: 'bg-transparent text-primary hover:bg-neutral-100',
+        danger: 'bg-danger text-white hover:bg-[#A4031F]'
     };
 
     return (

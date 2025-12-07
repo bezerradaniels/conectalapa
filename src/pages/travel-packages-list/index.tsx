@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Palmtree, MapPin, Calendar, X } from 'lucide-react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { supabase } from '../lib/supabase';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+import { supabase } from '../../lib/supabase';
 
 export const TravelPackagesList: React.FC = () => {
     const [packages, setPackages] = useState<any[]>([]);

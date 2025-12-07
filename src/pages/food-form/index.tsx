@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UtensilsCrossed, Image as ImageIcon, ArrowLeft, Plus, X } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 interface DishField {
     id: number;
@@ -161,9 +162,37 @@ export const FoodForm: React.FC = () => {
         setLoading(true);
 
         try {
-            // TODO: Upload de imagens e inserção no banco
+            if (!user) throw new Error('Usuário não autenticado');
+
+            // Find category id for 'alimentacao'
+            const { data: categoryData } = await supabase
+                .from('business_categories')
+                .select('id')
+                .eq('slug', 'alimentacao')
+                .single();
+            
+            const categoryId = categoryData?.id || 2;
+
+            // TODO: Upload images (logo, cover, gallery)
+            
+            const { error: insertError } = await supabase.from('companies').insert({
+                name: formData.name,
+                category_id: categoryId,
+                description: 'Estabelecimento de Alimentação',
+                metadata: {
+                    types: formData.types,
+                    dishes: dishes.map(d => d.name).filter(Boolean),
+                    schedules: schedules
+                },
+                status: 'pending',
+                user_id: user.id
+            });
+
+            if (insertError) throw insertError;
+
             navigate('/painel');
         } catch (err: any) {
+            console.error('Erro ao cadastrar:', err);
             setError(err.message || 'Erro ao cadastrar estabelecimento');
         } finally {
             setLoading(false);
@@ -171,10 +200,10 @@ export const FoodForm: React.FC = () => {
     };
 
     return (
-        <div className="h-screen bg-[#FAF8F5] flex items-center justify-center px-4 py-4 overflow-hidden">
-            <div className="w-full max-w-6xl h-[calc(100vh-2rem)] bg-white/90 backdrop-blur-sm rounded-[2rem] shadow-2xl flex flex-col lg:flex-row overflow-hidden">
+        <div className="h-screen bg-cream flex items-center justify-center px-4 py-4 overflow-hidden">
+            <div className="w-full max-w-6xl h-[calc(100vh-2rem)] bg-white/90 backdrop-blur-sm rounded-4xl shadow-2xl flex flex-col lg:flex-row overflow-hidden">
                 {/* Visual Section */}
-                <div className="relative flex-1 bg-gradient-to-br from-[#FAF8F5] to-[#F4F4F4] flex items-center justify-center p-8 lg:p-12">
+                <div className="relative flex-1 bg-linear-to-br from-cream to-neutral-100 flex items-center justify-center p-8 lg:p-12">
                     <div className="relative z-0">
                         <img
                             src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80"
@@ -252,7 +281,7 @@ export const FoodForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Nome do Local</label>
                                     <input
                                         type="text"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         placeholder="Nome do estabelecimento"
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -269,7 +298,7 @@ export const FoodForm: React.FC = () => {
                                                     type="checkbox"
                                                     checked={value}
                                                     onChange={(e) => setFormData({ ...formData, types: { ...formData.types, [key]: e.target.checked } })}
-                                                    className="w-4 h-4 rounded border-2 border-[#E7E7E7] text-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] cursor-pointer"
+                                                    className="w-4 h-4 rounded border-2 border-neutral-200 text-[#00A82D] focus:ring-2 focus:ring-primary-light cursor-pointer"
                                                 />
                                                 <span className="text-xs font-medium text-neutral-800 capitalize">{key}</span>
                                             </label>
@@ -281,7 +310,7 @@ export const FoodForm: React.FC = () => {
                                     type="button"
                                     onClick={nextStep}
                                     disabled={!validateStep1()}
-                                    className="w-full h-12 mt-4 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#D8F5E0] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                    className="w-full h-12 mt-4 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary-light disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 >
                                     Próximo
                                 </button>
@@ -358,7 +387,7 @@ export const FoodForm: React.FC = () => {
 
                                 <div className="grid grid-cols-2 gap-4 mt-4">
                                     <button type="button" onClick={prevStep} className="h-12 rounded-xl bg-gray-200 text-gray-700 font-bold text-base transition-all duration-200 hover:bg-gray-300 cursor-pointer">Voltar</button>
-                                    <button type="button" onClick={nextStep} className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl cursor-pointer">Próximo</button>
+                                    <button type="button" onClick={nextStep} className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl cursor-pointer">Próximo</button>
                                 </div>
                             </>
                         )}
@@ -373,7 +402,7 @@ export const FoodForm: React.FC = () => {
                                             <div key={dish.id} className="flex gap-2">
                                                 <input
                                                     type="text"
-                                                    className="flex-1 h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                                    className="flex-1 h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                                     placeholder={`Prato ${index + 1}`}
                                                     value={dish.name}
                                                     onChange={(e) => updateDish(dish.id, e.target.value)}
@@ -386,14 +415,14 @@ export const FoodForm: React.FC = () => {
                                             </div>
                                         ))}
                                     </div>
-                                    <button type="button" onClick={addDish} className="w-full mt-3 h-10 rounded-xl border-2 border-dashed border-[#00A82D] text-[#00A82D] font-semibold text-sm hover:bg-[#D8F5E0] transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                    <button type="button" onClick={addDish} className="w-full mt-3 h-10 rounded-xl border-2 border-dashed border-[#00A82D] text-[#00A82D] font-semibold text-sm hover:bg-primary-light transition-all flex items-center justify-center gap-2 cursor-pointer">
                                         <Plus size={18} /> Adicionar Prato
                                     </button>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 mt-4">
                                     <button type="button" onClick={prevStep} className="h-12 rounded-xl bg-gray-200 text-gray-700 font-bold text-base transition-all duration-200 hover:bg-gray-300 cursor-pointer">Voltar</button>
-                                    <button type="button" onClick={nextStep} className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl cursor-pointer">Próximo</button>
+                                    <button type="button" onClick={nextStep} className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl cursor-pointer">Próximo</button>
                                 </div>
                             </>
                         )}
@@ -415,7 +444,7 @@ export const FoodForm: React.FC = () => {
                                                             type="checkbox"
                                                             checked={isSelected}
                                                             onChange={() => toggleDay(day)}
-                                                            className="w-4 h-4 rounded border-2 border-[#E7E7E7] text-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] cursor-pointer"
+                                                            className="w-4 h-4 rounded border-2 border-neutral-200 text-[#00A82D] focus:ring-2 focus:ring-primary-light cursor-pointer"
                                                         />
                                                         <span className="text-sm font-semibold text-neutral-800">{day}</span>
                                                     </label>
@@ -426,14 +455,14 @@ export const FoodForm: React.FC = () => {
                                                                 <div key={time.id} className="flex gap-2 items-center">
                                                                     <input
                                                                         type="time"
-                                                                        className="flex-1 h-10 px-3 rounded-lg border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none text-sm"
+                                                                        className="flex-1 h-10 px-3 rounded-lg border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none text-sm"
                                                                         value={time.open}
                                                                         onChange={(e) => updateTimeSlot(schedule.id, time.id, 'open', e.target.value)}
                                                                     />
                                                                     <span className="text-sm text-gray-500">até</span>
                                                                     <input
                                                                         type="time"
-                                                                        className="flex-1 h-10 px-3 rounded-lg border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none text-sm"
+                                                                        className="flex-1 h-10 px-3 rounded-lg border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none text-sm"
                                                                         value={time.close}
                                                                         onChange={(e) => updateTimeSlot(schedule.id, time.id, 'close', e.target.value)}
                                                                     />
@@ -457,7 +486,7 @@ export const FoodForm: React.FC = () => {
 
                                 <div className="grid grid-cols-2 gap-4 mt-4">
                                     <button type="button" onClick={prevStep} className="h-12 rounded-xl bg-gray-200 text-gray-700 font-bold text-base transition-all duration-200 hover:bg-gray-300 cursor-pointer">Voltar</button>
-                                    <button type="submit" disabled={loading} className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                                    <button type="submit" disabled={loading} className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                         {loading ? 'Cadastrando...' : 'Cadastrar Local'}
                                     </button>
                                 </div>

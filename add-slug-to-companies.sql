@@ -1,3 +1,6 @@
+-- Habilitar extensão unaccent
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
 -- Adicionar campo slug à tabela companies
 ALTER TABLE public.companies
 ADD COLUMN IF NOT EXISTS slug TEXT;
@@ -33,9 +36,8 @@ WHERE slug IS NULL;
 CREATE OR REPLACE FUNCTION set_company_slug()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.slug IS NULL OR NEW.slug = '' THEN
-    NEW.slug := generate_slug(NEW.name);
-  END IF;
+  -- Always generate slug from name to prevent aleatory slugs
+  NEW.slug := generate_slug(NEW.name);
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

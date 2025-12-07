@@ -1,36 +1,36 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { MainLayout } from './layouts/MainLayout';
-import { Home } from './pages/Home';
-import { Login } from './pages/Login';
-import { Signup } from './pages/Signup';
-import { Dashboard } from './pages/Dashboard';
-import { CompanyForm } from './pages/CompanyForm';
-import { CompanyDetail } from './pages/CompanyDetail';
-import { EventForm } from './pages/EventForm';
-import { JobForm } from './pages/JobForm';
-import { TravelPackageForm } from './pages/TravelPackageForm';
-import { FoodForm } from './pages/FoodForm';
-import { CompaniesList } from './pages/CompaniesList';
-import { JobsList } from './pages/JobsList';
-import { TravelPackagesList } from './pages/TravelPackagesList';
-import { EventsList } from './pages/EventsList';
-import { FoodsList } from './pages/FoodsList';
-import { Terms } from './pages/Terms';
-import { AdminLogin } from './pages/AdminLogin';
-import { AdminDashboard } from './pages/AdminDashboard';
+import { Home } from './pages/home';
+import { Login } from './pages/login';
+import { Signup } from './pages/signup';
+import { Dashboard } from './pages/dashboard';
+import { CompanyForm } from './pages/company-form';
+import { CompanyDetail } from './pages/company-detail';
+import { EventForm } from './pages/event-form';
+import { JobForm } from './pages/job-form';
+import { TravelPackageForm } from './pages/travel-package-form';
+import { FoodForm } from './pages/food-form';
+import { CompaniesList } from './pages/companies-list';
+import { JobsList } from './pages/jobs-list';
+import { TravelPackagesList } from './pages/travel-packages-list';
+import { EventsList } from './pages/events-list';
+import { FoodsList } from './pages/foods-list';
+import { Terms } from './pages/terms';
+import { AdminLogin } from './pages/admin-login';
+import { AdminDashboard } from './pages/admin-dashboard';
 
 function AppRoutes() {
   const { profile, signOut, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
+      <div className="min-h-screen bg-cream flex items-center justify-center">
         <div className="text-center">
-          <div className="w-12 h-12 bg-[var(--color-primary)] rounded-xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+          <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4 animate-pulse">
             <span className="text-white font-bold text-2xl">C</span>
           </div>
-          <p className="text-[var(--color-neutral-500)]">Carregando...</p>
+          <p className="text-neutral-500">Carregando...</p>
         </div>
       </div>
     );
@@ -212,7 +212,7 @@ function AppRoutes() {
           <MainLayout user={user} onLogout={signOut}>
             <div className="max-w-[1140px] mx-auto py-8 px-6">
               <h1 className="text-3xl font-bold">Anuncie</h1>
-              <p className="text-[var(--color-neutral-500)] mt-2">Em desenvolvimento...</p>
+              <p className="text-neutral-500 mt-2">Em desenvolvimento...</p>
             </div>
           </MainLayout>
         }

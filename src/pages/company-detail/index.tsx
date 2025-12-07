@@ -12,9 +12,9 @@ import {
     ChevronRight,
     X
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { Button } from '../components/Button';
-import { Card } from '../components/Card';
+import { supabase } from '../../lib/supabase';
+import { Button } from '../../components/Button';
+import { Card } from '../../components/Card';
 
 interface Company {
     id: string;
@@ -136,7 +136,7 @@ export const CompanyDetail: React.FC = () => {
         return (
             <div className="max-w-[1140px] mx-auto py-8 px-6">
                 <div className="text-center py-12">
-                    <h2 className="text-2xl font-bold text-[var(--color-neutral-900)] mb-4">
+                    <h2 className="text-2xl font-bold text-neutral-900 mb-4">
                         Empresa não encontrada
                     </h2>
                     <Button onClick={() => navigate('/empresas')}>
@@ -154,24 +154,47 @@ export const CompanyDetail: React.FC = () => {
             <div className="max-w-[1140px] mx-auto py-8 px-6">
                 {/* Header */}
                 <div className="mb-6">
-                    <div className="flex justify-between items-start mb-4">
-                        <div>
-                            <h1 className="text-3xl font-bold text-[var(--color-neutral-900)] mb-2">
+                    <div className="flex flex-col gap-3 md:flex-row md:justify-between items-start mb-4">
+                        <div className="w-full">
+                            <h1 className="text-3xl font-bold text-neutral-900 mb-2">
                                 {company.name}
                             </h1>
-                            <div className="flex items-center gap-4 text-sm text-[var(--color-neutral-500)]">
-                                <span className="px-3 py-1 bg-[var(--color-primary-light)] text-[var(--color-primary-dark)] rounded-full font-medium">
+                            <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-500">
+                                <span className="px-3 py-1 bg-primary-light text-primary-dark rounded-full font-medium">
                                     {company.category}
                                 </span>
                                 {company.address && (
-                                    <div className="flex items-center gap-1">
-                                        <MapPin size={16} />
-                                        <span>{company.address}</span>
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-1">
+                                            <MapPin size={16} />
+                                            <span>{company.address}</span>
+                                        </div>
+                                        {/* Mobile-only share/save icons next to address */}
+                                        <div className="flex items-center gap-2 md:hidden">
+                                            <button
+                                                type="button"
+                                                onClick={handleShare}
+                                                className="p-2 rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors"
+                                            >
+                                                <Share2 size={18} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={toggleFavorite}
+                                                className="p-2 rounded-full bg-neutral-100 text-neutral-700 hover:bg-neutral-200 transition-colors"
+                                            >
+                                                <Heart
+                                                    size={18}
+                                                    className={isFavorite ? 'fill-red-500 text-red-500' : ''}
+                                                />
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
                         </div>
-                        <div className="flex gap-2">
+                        {/* Desktop / tablet share & save buttons with labels */}
+                        <div className="hidden md:flex gap-2">
                             <Button
                                 variant="ghost"
                                 className="flex items-center gap-2"
@@ -244,33 +267,33 @@ export const CompanyDetail: React.FC = () => {
                 {/* Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-8">
+                    <div className="lg:col-span-2 space-y-8 order-2 lg:order-1">
                         {/* Description */}
                         <Card>
-                            <h2 className="text-xl font-semibold text-[var(--color-neutral-900)] mb-4">
+                            <h2 className="text-xl font-semibold text-neutral-900 mb-4">
                                 Sobre
                             </h2>
-                            <p className="text-[var(--color-neutral-700)] leading-relaxed whitespace-pre-line">
+                            <p className="text-neutral-700 leading-relaxed whitespace-pre-line">
                                 {company.description}
                             </p>
                         </Card>
 
                         {/* Contact Info */}
                         <Card>
-                            <h2 className="text-xl font-semibold text-[var(--color-neutral-900)] mb-4">
+                            <h2 className="text-xl font-semibold text-neutral-900 mb-4">
                                 Informações de Contato
                             </h2>
                             <div className="space-y-4">
                                 {company.phone && (
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[var(--color-primary-light)] rounded-lg flex items-center justify-center">
-                                            <Phone size={20} className="text-[var(--color-primary-dark)]" />
+                                        <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center">
+                                            <Phone size={20} className="text-primary-dark" />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-[var(--color-neutral-500)]">Telefone</p>
+                                            <p className="text-sm text-neutral-500">Telefone</p>
                                             <a
                                                 href={`tel:${company.phone}`}
-                                                className="text-[var(--color-neutral-900)] font-medium hover:text-[var(--color-primary)] transition-colors"
+                                                className="text-neutral-900 font-medium hover:text-primary transition-colors"
                                             >
                                                 {company.phone}
                                             </a>
@@ -280,14 +303,14 @@ export const CompanyDetail: React.FC = () => {
 
                                 {company.email && (
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[var(--color-primary-light)] rounded-lg flex items-center justify-center">
-                                            <Mail size={20} className="text-[var(--color-primary-dark)]" />
+                                        <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center">
+                                            <Mail size={20} className="text-primary-dark" />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-[var(--color-neutral-500)]">Email</p>
+                                            <p className="text-sm text-neutral-500">Email</p>
                                             <a
                                                 href={`mailto:${company.email}`}
-                                                className="text-[var(--color-neutral-900)] font-medium hover:text-[var(--color-primary)] transition-colors"
+                                                className="text-neutral-900 font-medium hover:text-primary transition-colors"
                                             >
                                                 {company.email}
                                             </a>
@@ -297,12 +320,12 @@ export const CompanyDetail: React.FC = () => {
 
                                 {company.address && (
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[var(--color-primary-light)] rounded-lg flex items-center justify-center">
-                                            <MapPin size={20} className="text-[var(--color-primary-dark)]" />
+                                        <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center">
+                                            <MapPin size={20} className="text-primary-dark" />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-[var(--color-neutral-500)]">Endereço</p>
-                                            <p className="text-[var(--color-neutral-900)] font-medium">
+                                            <p className="text-sm text-neutral-500">Endereço</p>
+                                            <p className="text-neutral-900 font-medium">
                                                 {company.address}
                                             </p>
                                         </div>
@@ -311,12 +334,12 @@ export const CompanyDetail: React.FC = () => {
 
                                 {company.opening_hours && (
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-[var(--color-primary-light)] rounded-lg flex items-center justify-center">
-                                            <Clock size={20} className="text-[var(--color-primary-dark)]" />
+                                        <div className="w-10 h-10 bg-primary-light rounded-lg flex items-center justify-center">
+                                            <Clock size={20} className="text-primary-dark" />
                                         </div>
                                         <div>
-                                            <p className="text-sm text-[var(--color-neutral-500)]">Horário de Funcionamento</p>
-                                            <p className="text-[var(--color-neutral-900)] font-medium">
+                                            <p className="text-sm text-neutral-500">Horário de Funcionamento</p>
+                                            <p className="text-neutral-900 font-medium">
                                                 {company.opening_hours}
                                             </p>
                                         </div>
@@ -327,25 +350,30 @@ export const CompanyDetail: React.FC = () => {
                     </div>
 
                     {/* Sidebar */}
-                    <div className="lg:col-span-1">
+                    <div className="lg:col-span-1 order-1 lg:order-2">
                         <Card className="sticky top-8">
-                            <h3 className="text-lg font-semibold text-[var(--color-neutral-900)] mb-4">
+                            <h3 className="text-lg font-semibold text-neutral-900 mb-4">
                                 Entre em Contato
                             </h3>
 
-                            <div className="space-y-3 gap-3">
+                            <div className="flex flex-col gap-4">
                                 {company.phone && (
-                                    <a href={`tel:${company.phone}`}>
-                                        <Button variant="primary" className="w-full flex items-center justify-center gap-2">
+                                    <a 
+                                        href={`https://wa.me/55${company.phone.replace(/\D/g, '')}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="block"
+                                    >
+                                        <Button variant="primary" className="w-full flex items-center justify-center gap-2 cursor-pointer">
                                             <Phone size={18} />
-                                            Ligar Agora
+                                            WhatsApp
                                         </Button>
                                     </a>
                                 )}
 
                                 {company.website && (
-                                    <a href={company.website} target="_blank" rel="noopener noreferrer">
-                                        <Button variant="secondary" className="w-full flex items-center justify-center gap-2">
+                                    <a href={company.website} target="_blank" rel="noopener noreferrer" className="block">
+                                        <Button variant="secondary" className="w-full flex items-center justify-center gap-2 cursor-pointer">
                                             <ExternalLink size={18} />
                                             Visitar Site
                                         </Button>
@@ -353,8 +381,8 @@ export const CompanyDetail: React.FC = () => {
                                 )}
 
                                 {company.email && (
-                                    <a href={`mailto:${company.email}`}>
-                                        <Button variant="secondary" className="w-full flex items-center justify-center gap-2">
+                                    <a href={`mailto:${company.email}`} className="block">
+                                        <Button variant="secondary" className="w-full flex items-center justify-center gap-2 cursor-pointer">
                                             <Mail size={18} />
                                             Enviar Email
                                         </Button>
@@ -362,8 +390,8 @@ export const CompanyDetail: React.FC = () => {
                                 )}
                             </div>
 
-                            <div className="mt-6 pt-6 border-t border-[var(--color-neutral-200)]">
-                                <p className="text-xs text-[var(--color-neutral-500)] text-center">
+                            <div className="mt-6 pt-6 border-t border-neutral-200">
+                                <p className="text-xs text-neutral-500 text-center">
                                     Cadastrado em {new Date(company.created_at).toLocaleDateString('pt-BR')}
                                 </p>
                             </div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Image as ImageIcon, ArrowLeft, Music } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 export const EventForm: React.FC = () => {
     const navigate = useNavigate();
@@ -101,9 +102,31 @@ export const EventForm: React.FC = () => {
         setLoading(true);
 
         try {
+            if (!user) throw new Error('Usuário não autenticado');
+
             // TODO: Upload de imagens e inserção no banco
+            // Simplified insertion for now
+            
+            const { error: insertError } = await supabase.from('events').insert({
+                name: formData.name,
+                event_date: formData.event_date || null,
+                location: formData.location,
+                event_type: formData.event_type,
+                is_free: formData.is_free,
+                ticket_price: formData.ticket_price,
+                description: formData.description,
+                age_rating: formData.age_rating,
+                // logo_url: logoUrl,
+                // cover_image: coverUrl,
+                status: 'pending',
+                user_id: user.id
+            });
+
+            if (insertError) throw insertError;
+
             navigate('/painel');
         } catch (err: any) {
+            console.error('Erro ao cadastrar evento:', err);
             setError(err.message || 'Erro ao cadastrar evento');
         } finally {
             setLoading(false);
@@ -111,10 +134,10 @@ export const EventForm: React.FC = () => {
     };
 
     return (
-        <div className="h-screen bg-[#FAF8F5] flex items-center justify-center px-4 py-4 overflow-hidden">
-            <div className="w-full max-w-6xl h-[calc(100vh-2rem)] bg-white/90 backdrop-blur-sm rounded-[2rem] shadow-2xl flex flex-col lg:flex-row overflow-hidden">
+        <div className="h-screen bg-cream flex items-center justify-center px-4 py-4 overflow-hidden">
+            <div className="w-full max-w-6xl h-[calc(100vh-2rem)] bg-white/90 backdrop-blur-sm rounded-4xl shadow-2xl flex flex-col lg:flex-row overflow-hidden">
                 {/* Visual Section */}
-                <div className="relative flex-1 bg-gradient-to-br from-[#FAF8F5] to-[#F4F4F4] flex items-center justify-center p-8 lg:p-12">
+                <div className="relative flex-1 bg-linear-to-br from-cream to-neutral-100 flex items-center justify-center p-8 lg:p-12">
                     <div className="relative z-0">
                         <img
                             src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80"
@@ -192,7 +215,7 @@ export const EventForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Nome do Evento</label>
                                     <input
                                         type="text"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         placeholder="Nome do evento"
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -203,7 +226,7 @@ export const EventForm: React.FC = () => {
                                 <div>
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Tipo de Evento</label>
                                     <select
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         value={formData.event_type}
                                         onChange={(e) => setFormData({ ...formData, event_type: e.target.value })}
                                         required
@@ -224,7 +247,7 @@ export const EventForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Data do Evento</label>
                                     <input
                                         type="date"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         value={formData.event_date}
                                         onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
                                         required
@@ -235,7 +258,7 @@ export const EventForm: React.FC = () => {
                                     type="button"
                                     onClick={nextStep}
                                     disabled={!validateStep1()}
-                                    className="w-full h-12 mt-4 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#D8F5E0] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                    className="w-full h-12 mt-4 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary-light disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 >
                                     Próximo
                                 </button>
@@ -249,7 +272,7 @@ export const EventForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Local do Evento</label>
                                     <input
                                         type="text"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         placeholder="Endereço ou nome do local"
                                         value={formData.location}
                                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -261,7 +284,7 @@ export const EventForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Faixa Etária</label>
                                     <input
                                         type="text"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         placeholder="Ex: Livre, 18+, 16+"
                                         value={formData.age_rating}
                                         onChange={(e) => setFormData({ ...formData, age_rating: e.target.value })}
@@ -274,7 +297,7 @@ export const EventForm: React.FC = () => {
                                             type="checkbox"
                                             checked={formData.is_free}
                                             onChange={(e) => setFormData({ ...formData, is_free: e.target.checked, ticket_price: '' })}
-                                            className="w-4 h-4 rounded border-2 border-[#E7E7E7] text-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] cursor-pointer"
+                                            className="w-4 h-4 rounded border-2 border-neutral-200 text-[#00A82D] focus:ring-2 focus:ring-primary-light cursor-pointer"
                                         />
                                         <span className="text-sm font-semibold text-neutral-800">Evento Gratuito</span>
                                     </label>
@@ -285,7 +308,7 @@ export const EventForm: React.FC = () => {
                                         <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Valor do Ingresso</label>
                                         <input
                                             type="text"
-                                            className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                            className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                             placeholder="R$ 50,00"
                                             value={formData.ticket_price}
                                             onChange={(e) => setFormData({ ...formData, ticket_price: e.target.value })}
@@ -305,7 +328,7 @@ export const EventForm: React.FC = () => {
                                         type="button"
                                         onClick={nextStep}
                                         disabled={!validateStep2()}
-                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#D8F5E0] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary-light disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         Próximo
                                     </button>
@@ -413,7 +436,7 @@ export const EventForm: React.FC = () => {
                                     <button type="button" onClick={prevStep} className="h-12 rounded-xl bg-gray-200 text-gray-700 font-bold text-base transition-all duration-200 hover:bg-gray-300 cursor-pointer">
                                         Voltar
                                     </button>
-                                    <button type="button" onClick={nextStep} className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl cursor-pointer">
+                                    <button type="button" onClick={nextStep} className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl cursor-pointer">
                                         Próximo
                                     </button>
                                 </div>
@@ -426,7 +449,7 @@ export const EventForm: React.FC = () => {
                                 <div>
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Descrição do Evento</label>
                                     <textarea
-                                        className="w-full h-32 px-4 py-3 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200 resize-none"
+                                        className="w-full h-32 px-4 py-3 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200 resize-none"
                                         placeholder="Descreva o evento..."
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -452,7 +475,7 @@ export const EventForm: React.FC = () => {
                                     <button
                                         type="submit"
                                         disabled={loading || !formData.description}
-                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         {loading ? 'Cadastrando...' : 'Cadastrar Evento'}
                                     </button>

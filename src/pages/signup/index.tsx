@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plane, Briefcase, Globe, BarChart3, Users, MessageCircle, Search, Asterisk, ArrowLeft } from 'lucide-react';
 
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const Signup: React.FC = () => {
     const navigate = useNavigate();

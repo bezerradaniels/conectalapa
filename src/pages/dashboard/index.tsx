@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Edit2, Pause, Play, Trash2, CheckCircle, XCircle, Plus } from 'lucide-react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { ToastContainer } from '../components/Toast';
-import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+import { ToastContainer } from '../../components/Toast';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 interface DashboardProps {
     isAdmin?: boolean;
@@ -193,9 +193,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
 
     const getStatusBadge = (status: string) => {
         const styles = {
-            pending: 'bg-[var(--color-accent-yellow)] text-[var(--color-neutral-900)]',
-            active: 'bg-[var(--color-primary-light)] text-[var(--color-primary-dark)]',
-            inactive: 'bg-[var(--color-neutral-200)] text-[var(--color-neutral-700)]',
+            pending: 'bg-accent-yellow text-neutral-900',
+            active: 'bg-primary-light text-primary-dark',
+            inactive: 'bg-neutral-200 text-neutral-700',
         };
 
         const labels = {
@@ -225,7 +225,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
     const TableSection = ({ title, data, type }: { title: string; data: any[]; type: string }) => (
         <Card className="mb-8">
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-[var(--color-neutral-900)]">{title}</h2>
+                <h2 className="text-xl font-semibold text-neutral-900">{title}</h2>
                 {type !== 'users' && (
                     <Link to={getCreateLink(type)}>
                         <Button variant="primary" className="flex items-center gap-2 cursor-pointer">
@@ -237,7 +237,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
             </div>
             {data.length === 0 ? (
                 <div className="text-center py-8">
-                    <p className="text-[var(--color-neutral-500)] mb-4">
+                    <p className="text-neutral-500 mb-4">
                         Nenhum item cadastrado ainda.
                     </p>
                     {type !== 'users' && (
@@ -252,33 +252,33 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b border-[var(--color-neutral-200)]">
-                                <th className="text-left py-3 px-4 text-sm font-semibold text-[var(--color-neutral-700)]">
+                            <tr className="border-b border-neutral-200">
+                                <th className="text-left py-3 px-4 text-sm font-semibold text-neutral-700">
                                     {type === 'users' ? 'Nome' : type === 'packages' ? 'Destino' : type === 'jobs' ? 'Título' : 'Nome'}
                                 </th>
                                 {type === 'users' && (
-                                    <th className="text-left py-3 px-4 text-sm font-semibold text-[var(--color-neutral-700)]">Role</th>
+                                    <th className="text-left py-3 px-4 text-sm font-semibold text-neutral-700">Role</th>
                                 )}
                                 {type !== 'users' && (
-                                    <th className="text-left py-3 px-4 text-sm font-semibold text-[var(--color-neutral-700)]">Status</th>
+                                    <th className="text-left py-3 px-4 text-sm font-semibold text-neutral-700">Status</th>
                                 )}
-                                <th className="text-left py-3 px-4 text-sm font-semibold text-[var(--color-neutral-700)]">Data</th>
-                                <th className="text-right py-3 px-4 text-sm font-semibold text-[var(--color-neutral-700)]">Ações</th>
+                                <th className="text-left py-3 px-4 text-sm font-semibold text-neutral-700">Data</th>
+                                <th className="text-right py-3 px-4 text-sm font-semibold text-neutral-700">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             {data.map((item) => (
-                                <tr key={item.id} className="border-b border-[var(--color-neutral-200)] last:border-0">
-                                    <td className="py-4 px-4 text-[var(--color-neutral-900)]">
+                                <tr key={item.id} className="border-b border-neutral-200 last:border-0">
+                                    <td className="py-4 px-4 text-neutral-900">
                                         {item.name || item.title || item.destination}
                                     </td>
                                     {type === 'users' && (
-                                        <td className="py-4 px-4 text-[var(--color-neutral-700)]">{item.role || 'user'}</td>
+                                        <td className="py-4 px-4 text-neutral-700">{item.role || 'user'}</td>
                                     )}
                                     {type !== 'users' && (
                                         <td className="py-4 px-4">{getStatusBadge(item.status)}</td>
                                     )}
-                                    <td className="py-4 px-4 text-[var(--color-neutral-700)]">
+                                    <td className="py-4 px-4 text-neutral-700">
                                         {type === 'users'
                                             ? new Date(item.created_at).toLocaleDateString('pt-BR')
                                             : (item.date || new Date(item.created_at).toLocaleDateString('pt-BR'))
@@ -294,7 +294,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
                                                         title="Aprovar"
                                                         onClick={() => handleApprove(item.id, type)}
                                                     >
-                                                        <CheckCircle size={18} className="text-[var(--color-success)]" />
+                                                        <CheckCircle size={18} className="text-success" />
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
@@ -306,7 +306,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
                                                             }
                                                         }}
                                                     >
-                                                        <XCircle size={18} className="text-[var(--color-danger)]" />
+                                                        <XCircle size={18} className="text-danger" />
                                                     </Button>
                                                 </>
                                             )}
@@ -318,7 +318,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
                                                         title="Editar"
                                                         onClick={() => alert('Funcionalidade de edição em desenvolvimento')}
                                                     >
-                                                        <Edit2 size={18} className="text-[var(--color-neutral-700)]" />
+                                                        <Edit2 size={18} className="text-neutral-700" />
                                                     </Button>
                                                     <Button
                                                         variant="ghost"
@@ -327,9 +327,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
                                                         onClick={() => handleToggleStatus(item.id, item.status, type)}
                                                     >
                                                         {item.status === 'active' ? (
-                                                            <Pause size={18} className="text-[var(--color-neutral-700)]" />
+                                                            <Pause size={18} className="text-neutral-700" />
                                                         ) : (
-                                                            <Play size={18} className="text-[var(--color-success)]" />
+                                                            <Play size={18} className="text-success" />
                                                         )}
                                                     </Button>
                                                     <Button
@@ -342,7 +342,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
                                                             }
                                                         }}
                                                     >
-                                                        <Trash2 size={18} className="text-[var(--color-danger)]" />
+                                                        <Trash2 size={18} className="text-danger" />
                                                     </Button>
                                                 </>
                                             )}
@@ -361,8 +361,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
         return (
             <div className="max-w-[1140px] mx-auto py-8 px-6">
                 <div className="text-center py-12">
-                    <div className="inline-block w-8 h-8 border-4 border-[var(--color-primary)] border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <p className="text-[var(--color-neutral-500)]">Carregando seus dados...</p>
+                    <div className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p className="text-neutral-500">Carregando seus dados...</p>
                 </div>
             </div>
         );
@@ -373,14 +373,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ isAdmin = false }) => {
             <ToastContainer toasts={toasts} removeToast={removeToast} />
             <div className="max-w-[1140px] mx-auto py-8 px-6">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-[var(--color-neutral-900)] mb-2">
+                    <h1 className="text-3xl font-bold text-neutral-900 mb-2">
                         {isAdmin ? 'Painel Administrativo' : 'Meu Painel'}
                     </h1>
-                    <p className="text-[var(--color-neutral-500)]">
+                    <p className="text-neutral-500">
                         {isAdmin ? 'Gerencie todos os cadastros e aprovações' : 'Gerencie seus cadastros'}
                     </p>
                     {!isAdmin && (
-                        <p className="text-sm text-[var(--color-neutral-400)] mt-2">
+                        <p className="text-sm text-neutral-400 mt-2">
                             💡 Seus cadastros precisam ser aprovados por um administrador antes de ficarem públicos
                         </p>
                     )}

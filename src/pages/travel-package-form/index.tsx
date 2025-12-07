@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Palmtree, Image as ImageIcon, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../lib/supabase';
 
 export const TravelPackageForm: React.FC = () => {
     const navigate = useNavigate();
@@ -79,10 +80,10 @@ export const TravelPackageForm: React.FC = () => {
     };
 
     return (
-        <div className="h-screen bg-[#FAF8F5] flex items-center justify-center px-4 py-4 overflow-hidden">
-            <div className="w-full max-w-6xl h-[calc(100vh-2rem)] bg-white/90 backdrop-blur-sm rounded-[2rem] shadow-2xl flex flex-col lg:flex-row overflow-hidden">
+        <div className="h-screen bg-cream flex items-center justify-center px-4 py-4 overflow-hidden">
+            <div className="w-full max-w-6xl h-[calc(100vh-2rem)] bg-white/90 backdrop-blur-sm rounded-4xl shadow-2xl flex flex-col lg:flex-row overflow-hidden">
                 {/* Visual Section */}
-                <div className="relative flex-1 bg-gradient-to-br from-[#FAF8F5] to-[#F4F4F4] flex items-center justify-center p-8 lg:p-12">
+                <div className="relative flex-1 bg-linear-to-br from-cream to-neutral-100 flex items-center justify-center p-8 lg:p-12">
                     <div className="relative z-0">
                         <img
                             src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=600&q=80"
@@ -159,7 +160,7 @@ export const TravelPackageForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Nome do Destino</label>
                                     <input
                                         type="text"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         placeholder="Ex: Salvador, Bahia"
                                         value={formData.destination}
                                         onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
@@ -171,7 +172,7 @@ export const TravelPackageForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Local de Saída</label>
                                     <input
                                         type="text"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         placeholder="Ex: Bom Jesus da Lapa"
                                         value={formData.departure_location}
                                         onChange={(e) => setFormData({ ...formData, departure_location: e.target.value })}
@@ -183,7 +184,7 @@ export const TravelPackageForm: React.FC = () => {
                                     type="button"
                                     onClick={nextStep}
                                     disabled={!validateStep1()}
-                                    className="w-full h-12 mt-4 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#D8F5E0] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                    className="w-full h-12 mt-4 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary-light disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                 >
                                     Próximo
                                 </button>
@@ -197,7 +198,7 @@ export const TravelPackageForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Data de Saída</label>
                                     <input
                                         type="date"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         value={formData.departure_date}
                                         onChange={(e) => setFormData({ ...formData, departure_date: e.target.value })}
                                         required
@@ -208,7 +209,7 @@ export const TravelPackageForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Data de Retorno</label>
                                     <input
                                         type="date"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         value={formData.return_date}
                                         onChange={(e) => setFormData({ ...formData, return_date: e.target.value })}
                                         required
@@ -219,7 +220,7 @@ export const TravelPackageForm: React.FC = () => {
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">WhatsApp para Contato</label>
                                     <input
                                         type="tel"
-                                        className="w-full h-12 px-4 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200"
+                                        className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200"
                                         placeholder="(77) 98888-8888"
                                         value={formData.whatsapp}
                                         onChange={(e) => setFormData({ ...formData, whatsapp: formatWhatsApp(e.target.value) })}
@@ -239,7 +240,7 @@ export const TravelPackageForm: React.FC = () => {
                                         type="button"
                                         onClick={nextStep}
                                         disabled={!validateStep2()}
-                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-[#D8F5E0] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary-light disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         Próximo
                                     </button>
@@ -253,7 +254,7 @@ export const TravelPackageForm: React.FC = () => {
                                 <div>
                                     <label className="block text-xs font-semibold text-neutral-800 mb-1.5">Descrição da Viagem</label>
                                     <textarea
-                                        className="w-full h-32 px-4 py-3 rounded-xl border-2 border-[#E7E7E7] bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-[#D8F5E0] outline-none transition-all duration-200 resize-none"
+                                        className="w-full h-32 px-4 py-3 rounded-xl border-2 border-neutral-200 bg-[#FAFAFA] text-neutral-900 placeholder:text-neutral-400 focus:border-[#00A82D] focus:ring-2 focus:ring-primary-light outline-none transition-all duration-200 resize-none"
                                         placeholder="Descreva a viagem, incluindo hospedagem, passeios, etc..."
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -309,7 +310,7 @@ export const TravelPackageForm: React.FC = () => {
                                     <button
                                         type="submit"
                                         disabled={loading || !formData.description}
-                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-[#0A7A27] hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        className="h-12 rounded-xl bg-[#00A82D] text-white font-bold text-base shadow-xl transition-all duration-200 hover:bg-primary-dark hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     >
                                         {loading ? 'Cadastrando...' : 'Cadastrar Viagem'}
                                     </button>

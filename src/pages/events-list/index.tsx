@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Search, MapPin, Music, DollarSign, Filter, X } from 'lucide-react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { supabase } from '../lib/supabase';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+import { supabase } from '../../lib/supabase';
 
 const EVENT_TYPES = [
     { value: 'show', label: 'Show' },
@@ -82,10 +82,10 @@ export const EventsList: React.FC = () => {
         <div className="max-w-[1140px] mx-auto py-8 px-6">
             {/* Header */}
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-[var(--color-neutral-900)] mb-2">
+                <h1 className="text-3xl font-bold text-neutral-900 mb-2">
                     Eventos
                 </h1>
-                <p className="text-[var(--color-neutral-500)]">
+                <p className="text-neutral-500">
                     Descubra os próximos eventos em Bom Jesus da Lapa
                 </p>
             </div>
@@ -95,13 +95,13 @@ export const EventsList: React.FC = () => {
                 <div className="space-y-4">
                     {/* Search Bar */}
                     <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-neutral-400)]" size={20} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
                         <input
                             type="text"
                             placeholder="Buscar eventos..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-[var(--color-neutral-200)] bg-[var(--color-cream)] text-[var(--color-neutral-900)] placeholder:text-[var(--color-neutral-400)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-light)] outline-none transition-all"
+                            className="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-neutral-200 bg-cream text-neutral-900 placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary-light outline-none transition-all"
                         />
                     </div>
 
@@ -119,7 +119,7 @@ export const EventsList: React.FC = () => {
                             <Button
                                 variant="ghost"
                                 onClick={clearFilters}
-                                className="flex items-center gap-2 text-[var(--color-danger)] cursor-pointer"
+                                className="flex items-center gap-2 text-danger cursor-pointer"
                             >
                                 <X size={18} />
                                 Limpar Filtros
@@ -129,14 +129,14 @@ export const EventsList: React.FC = () => {
 
                     {/* Filters */}
                     {showFilters && (
-                        <div className="pt-4 border-t border-[var(--color-neutral-200)]">
-                            <label className="block text-sm font-semibold text-[var(--color-neutral-700)] mb-2">
+                        <div className="pt-4 border-t border-neutral-200">
+                            <label className="block text-sm font-semibold text-neutral-700 mb-2">
                                 Tipo de Evento
                             </label>
                             <select
                                 value={selectedType}
                                 onChange={(e) => setSelectedType(e.target.value)}
-                                className="w-full h-12 px-4 rounded-xl border-2 border-[var(--color-neutral-200)] bg-[var(--color-cream)] text-[var(--color-neutral-900)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary-light)] outline-none transition-all cursor-pointer"
+                                className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-cream text-neutral-900 focus:border-primary focus:ring-2 focus:ring-primary-light outline-none transition-all cursor-pointer"
                             >
                                 <option value="">Todos os tipos</option>
                                 {EVENT_TYPES.map((type) => (
@@ -152,7 +152,7 @@ export const EventsList: React.FC = () => {
 
             {/* Results Count */}
             <div className="mb-4">
-                <p className="text-sm text-[var(--color-neutral-500)]">
+                <p className="text-sm text-neutral-500">
                     {events.length} {events.length === 1 ? 'evento encontrado' : 'eventos encontrados'}
                 </p>
             </div>
@@ -160,8 +160,8 @@ export const EventsList: React.FC = () => {
             {/* Events Grid */}
             {events.length === 0 ? (
                 <Card className="text-center py-12">
-                    <Music size={48} className="mx-auto mb-4 text-[var(--color-neutral-400)]" />
-                    <p className="text-[var(--color-neutral-500)] mb-4">
+                    <Music size={48} className="mx-auto mb-4 text-neutral-400" />
+                    <p className="text-neutral-500 mb-4">
                         {hasActiveFilters ? 'Nenhum evento encontrado com os filtros selecionados.' : 'Nenhum evento disponível no momento.'}
                     </p>
                     {hasActiveFilters && (
@@ -176,7 +176,7 @@ export const EventsList: React.FC = () => {
                         <Card key={event.id} className="hover:shadow-xl transition-shadow">
                             <div className="flex gap-4">
                                 {/* Date Badge */}
-                                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] rounded-xl flex flex-col items-center justify-center text-white">
+                                <div className="shrink-0 w-20 h-20 bg-linear-to-br from-primary to-primary-dark rounded-xl flex flex-col items-center justify-center text-white">
                                     <span className="text-2xl font-bold">
                                         {new Date(event.event_date).getDate()}
                                     </span>
@@ -188,31 +188,31 @@ export const EventsList: React.FC = () => {
                                 {/* Event Info */}
                                 <div className="flex-1">
                                     <div className="flex items-start justify-between mb-2">
-                                        <h3 className="text-lg font-semibold text-[var(--color-neutral-900)]">
+                                        <h3 className="text-lg font-semibold text-neutral-900">
                                             {event.name}
                                         </h3>
-                                        <span className="px-2 py-1 bg-[var(--color-primary-light)] text-[var(--color-primary-dark)] rounded-full text-xs font-medium whitespace-nowrap ml-2">
+                                        <span className="px-2 py-1 bg-primary-light text-primary-dark rounded-full text-xs font-medium whitespace-nowrap ml-2">
                                             {EVENT_TYPES.find(t => t.value === event.event_type)?.label || event.event_type}
                                         </span>
                                     </div>
 
                                     <div className="space-y-1 mb-3">
-                                        <div className="flex items-center gap-2 text-sm text-[var(--color-neutral-600)]">
+                                        <div className="flex items-center gap-2 text-sm text-neutral-600">
                                             <MapPin size={14} />
                                             <span className="line-clamp-1">{event.location}</span>
                                         </div>
                                         {event.age_rating && (
-                                            <div className="text-sm text-[var(--color-neutral-600)]">
+                                            <div className="text-sm text-neutral-600">
                                                 Classificação: {event.age_rating}
                                             </div>
                                         )}
                                         {event.is_free ? (
-                                            <div className="flex items-center gap-1 text-sm font-semibold text-[var(--color-success)]">
+                                            <div className="flex items-center gap-1 text-sm font-semibold text-success">
                                                 <DollarSign size={14} />
                                                 Gratuito
                                             </div>
                                         ) : event.ticket_price && (
-                                            <div className="flex items-center gap-1 text-sm text-[var(--color-neutral-600)]">
+                                            <div className="flex items-center gap-1 text-sm text-neutral-600">
                                                 <DollarSign size={14} />
                                                 {event.ticket_price}
                                             </div>

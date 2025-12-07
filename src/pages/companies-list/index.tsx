@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, Filter, X } from 'lucide-react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { supabase } from '../lib/supabase';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+import { supabase } from '../../lib/supabase';
 
 export const CompaniesList: React.FC = () => {
     const [companies, setCompanies] = useState<any[]>([]);

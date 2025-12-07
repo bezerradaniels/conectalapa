@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Search, UtensilsCrossed, Filter, X } from 'lucide-react';
-import { Card } from '../components/Card';
-import { Button } from '../components/Button';
-import { supabase } from '../lib/supabase';
+import { Card } from '../../components/Card';
+import { Button } from '../../components/Button';
+import { supabase } from '../../lib/supabase';
 
 const FOOD_TYPES = [
     'Restaurante',
