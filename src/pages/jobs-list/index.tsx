@@ -1,5 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Briefcase, DollarSign, Calendar, X } from 'lucide-react';
+import { Search, Briefcase, DollarSign, Calendar, X, Filter, MapPin, Clock } from 'lucide-react';
+
+const WORK_TYPES = [
+    { value: 'tempo-integral', label: 'Tempo Integral' },
+    { value: 'meio-periodo', label: 'Meio Período' },
+    { value: 'temporario', label: 'Temporário' },
+];
+
+const WORK_LOCATIONS = [
+    { value: 'presencial', label: 'Presencial' },
+    { value: 'remoto', label: 'Remoto' },
+    { value: 'hibrido', label: 'Híbrido' },
+];
+
+const DEADLINE_FILTERS = [
+    { value: 'open', label: 'Inscrições Abertas' },
+    { value: 'closed', label: 'Inscrições Encerradas' },
+];
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { supabase } from '../../lib/supabase';
@@ -8,6 +25,10 @@ export const JobsList: React.FC = () => {
     const [jobs, setJobs] = useState<any[]>([]);
 
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedWorkType, setSelectedWorkType] = useState('');
+    const [selectedWorkLocation, setSelectedWorkLocation] = useState('');
+    const [selectedDeadline, setSelectedDeadline] = useState('');
+    const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
         loadJobs();
@@ -15,7 +36,7 @@ export const JobsList: React.FC = () => {
 
     useEffect(() => {
         filterJobs();
-    }, [searchTerm]);
+    }, [searchTerm, selectedWorkType, selectedWorkLocation, selectedDeadline]);
 
     const loadJobs = async () => {
         try {
@@ -34,6 +55,7 @@ export const JobsList: React.FC = () => {
 
     const filterJobs = async () => {
         try {
+            const today = new Date().toISOString().split('T')[0];
             let query = supabase
                 .from('jobs')
                 .select('*')
@@ -41,6 +63,20 @@ export const JobsList: React.FC = () => {
 
             if (searchTerm) {
                 query = query.or(`title.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%`);
+            }
+
+            if (selectedWorkType) {
+                query = query.eq('work_type', selectedWorkType);
+            }
+
+            if (selectedWorkLocation) {
+                query = query.eq('work_location', selectedWorkLocation);
+            }
+
+            if (selectedDeadline === 'open') {
+                query = query.or(`deadline.is.null,deadline.gte.${today}`);
+            } else if (selectedDeadline === 'closed') {
+                query = query.not('deadline', 'is', null).lt('deadline', today);
             }
 
             const { data } = await query.order('created_at', { ascending: false });
@@ -52,7 +88,12 @@ export const JobsList: React.FC = () => {
 
     const clearFilters = () => {
         setSearchTerm('');
+        setSelectedWorkType('');
+        setSelectedWorkLocation('');
+        setSelectedDeadline('');
     };
+
+    const hasActiveFilters = searchTerm || selectedWorkType || selectedWorkLocation || selectedDeadline;
 
 
 
@@ -68,9 +109,10 @@ export const JobsList: React.FC = () => {
                 </p>
             </div>
 
-            {/* Search */}
+            {/* Search and Filters */}
             <Card className="mb-6">
                 <div className="space-y-4">
+                    {/* Search Bar */}
                     <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size={20} />
                         <input
@@ -81,16 +123,88 @@ export const JobsList: React.FC = () => {
                             className="w-full h-12 pl-12 pr-4 rounded-xl border-2 border-neutral-200 bg-cream text-neutral-900 placeholder:text-neutral-400 focus:border-primary focus:ring-2 focus:ring-primary-light outline-none transition-all"
                         />
                     </div>
-                    {searchTerm && (
-                        <div className="flex justify-end">
+
+                    {/* Filter Toggle Button */}
+                    <div className="flex items-center justify-between">
+                        <Button
+                            variant="ghost"
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="flex items-center gap-2 cursor-pointer"
+                        >
+                            <Filter size={18} />
+                            {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+                        </Button>
+                        {hasActiveFilters && (
                             <Button
                                 variant="ghost"
                                 onClick={clearFilters}
                                 className="flex items-center gap-2 text-danger cursor-pointer"
                             >
                                 <X size={18} />
-                                Limpar Busca
+                                Limpar Filtros
                             </Button>
+                        )}
+                    </div>
+
+                    {/* Filters */}
+                    {showFilters && (
+                        <div className="pt-4 border-t border-neutral-200 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                                    <Clock size={14} className="inline mr-1" />
+                                    Tipo de Contratação
+                                </label>
+                                <select
+                                    value={selectedWorkType}
+                                    onChange={(e) => setSelectedWorkType(e.target.value)}
+                                    className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-cream text-neutral-900 focus:border-primary focus:ring-2 focus:ring-primary-light outline-none transition-all cursor-pointer"
+                                >
+                                    <option value="">Todos os tipos</option>
+                                    {WORK_TYPES.map((type) => (
+                                        <option key={type.value} value={type.value}>
+                                            {type.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                                    <MapPin size={14} className="inline mr-1" />
+                                    Modalidade
+                                </label>
+                                <select
+                                    value={selectedWorkLocation}
+                                    onChange={(e) => setSelectedWorkLocation(e.target.value)}
+                                    className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-cream text-neutral-900 focus:border-primary focus:ring-2 focus:ring-primary-light outline-none transition-all cursor-pointer"
+                                >
+                                    <option value="">Todas as modalidades</option>
+                                    {WORK_LOCATIONS.map((loc) => (
+                                        <option key={loc.value} value={loc.value}>
+                                            {loc.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                                    <Calendar size={14} className="inline mr-1" />
+                                    Status das Inscrições
+                                </label>
+                                <select
+                                    value={selectedDeadline}
+                                    onChange={(e) => setSelectedDeadline(e.target.value)}
+                                    className="w-full h-12 px-4 rounded-xl border-2 border-neutral-200 bg-cream text-neutral-900 focus:border-primary focus:ring-2 focus:ring-primary-light outline-none transition-all cursor-pointer"
+                                >
+                                    <option value="">Todas</option>
+                                    {DEADLINE_FILTERS.map((df) => (
+                                        <option key={df.value} value={df.value}>
+                                            {df.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -108,11 +222,11 @@ export const JobsList: React.FC = () => {
                 <Card className="text-center py-12">
                     <Briefcase size={48} className="mx-auto mb-4 text-neutral-400" />
                     <p className="text-neutral-500 mb-4">
-                        {searchTerm ? 'Nenhuma vaga encontrada com esse termo.' : 'Nenhuma vaga disponível no momento.'}
+                        {hasActiveFilters ? 'Nenhuma vaga encontrada com os filtros selecionados.' : 'Nenhuma vaga disponível no momento.'}
                     </p>
-                    {searchTerm && (
+                    {hasActiveFilters && (
                         <Button variant="secondary" onClick={clearFilters} className="cursor-pointer">
-                            Limpar Busca
+                            Limpar Filtros
                         </Button>
                     )}
                 </Card>
