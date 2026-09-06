@@ -37,6 +37,10 @@ export const router = createBrowserRouter([
       { path: 'gastronomia/:slug', element: <DiningDetailPage /> },
       { path: 'solicitar', element: <SubmitPage /> },
       { path: 'admin', element: <AdminDashboardPage /> },
+      {
+        path: 'dev/tokens',
+        lazy: () => import('@/pages/dev/tokens').then((m) => ({ Component: m.default })),
+      },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
