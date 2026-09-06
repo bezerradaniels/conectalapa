@@ -1,5 +1,6 @@
 export * from './business-card'
 export * from './event-card'
 export * from './package-card'
+export * from './lodging-card'
 export * from './recent-entry-card'
 export * from './skeletons'

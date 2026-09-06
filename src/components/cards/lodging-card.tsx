@@ -1,0 +1,109 @@
+import { Link } from 'react-router-dom'
+import { MapPin, Bed } from 'lucide-react'
+import type { Lodging, GalleryItem } from '@/types'
+import { extractNeighborhood } from '@/lib/format'
+import { Badge } from '@/components/ui/badge'
+
+export interface LodgingCardProps {
+  lodging: Lodging & { galleries?: GalleryItem[] }
+}
+
+const LODGING_TYPE_LABELS: Record<string, string> = {
+  hotel: 'Hotel',
+  pousada: 'Pousada',
+  guesthouse: 'Hospedaria',
+  resort: 'Resort',
+  other: 'Hospedagem',
+}
+
+export function LodgingCard({ lodging }: LodgingCardProps) {
+  const neighborhood = extractNeighborhood(lodging.address)
+  const typeLabel = LODGING_TYPE_LABELS[lodging.lodging_type] || lodging.category?.name || 'Hospedagem'
+
+  // Pick first gallery image if present
+  const firstImage = lodging.galleries && lodging.galleries.length > 0
+    ? lodging.galleries[0]?.image_url
+    : null
+
+  return (
+    <Link
+      to={`/hospedagem/${lodging.slug}`}
+      className="group flex flex-col rounded-xl border border-border-hairline bg-bg-surface overflow-hidden hover:border-border-subtle hover:shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-accent"
+      aria-label={`Ver detalhes de ${lodging.name}`}
+    >
+      {firstImage ? (
+        <div className="relative aspect-16/9 w-full bg-bg-subtle overflow-hidden">
+          <img
+            src={firstImage}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            width={400}
+            height={225}
+            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+          />
+          <div className="absolute top-2.5 left-2.5">
+            <span className="inline-flex items-center rounded-md bg-white/95 backdrop-blur-xs px-2.5 py-1 text-2xs font-semibold text-slate-800 shadow-xs">
+              {typeLabel}
+            </span>
+          </div>
+          {lodging.price_range && (
+            <div className="absolute top-2.5 right-2.5">
+              <span className="inline-flex items-center rounded-md bg-slate-900/80 backdrop-blur-xs px-2 py-1 text-2xs font-bold text-amber-300 shadow-xs">
+                {lodging.price_range}
+              </span>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="relative aspect-16/9 w-full bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center text-amber-700/60 border-b border-border-hairline">
+          <Bed className="w-10 h-10 opacity-50" aria-hidden="true" />
+          <div className="absolute top-2.5 left-2.5">
+            <span className="inline-flex items-center rounded-md bg-white/95 px-2.5 py-1 text-2xs font-semibold text-slate-800 shadow-xs">
+              {typeLabel}
+            </span>
+          </div>
+          {lodging.price_range && (
+            <div className="absolute top-2.5 right-2.5">
+              <span className="inline-flex items-center rounded-md bg-slate-900/80 px-2 py-1 text-2xs font-bold text-amber-300 shadow-xs">
+                {lodging.price_range}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <Badge variant="neutral" size="sm" className="font-medium text-2xs">
+              {typeLabel}
+            </Badge>
+            {lodging.price_range && (
+              <Badge variant="accent" size="sm" className="font-bold text-2xs">
+                {lodging.price_range}
+              </Badge>
+            )}
+          </div>
+
+          <h3 className="mt-2 text-base font-semibold text-text-primary group-hover:text-accent-text transition-colors line-clamp-2 leading-snug">
+            {lodging.name}
+          </h3>
+
+          {lodging.description && (
+            <p className="mt-2 text-xs text-text-secondary line-clamp-2 leading-relaxed">
+              {lodging.description}
+            </p>
+          )}
+        </div>
+
+        {neighborhood && (
+          <div className="mt-4 pt-2.5 border-t border-border-hairline flex items-center gap-1.5 text-xs text-text-muted truncate">
+            <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+            <span className="truncate">{neighborhood}</span>
+          </div>
+        )}
+      </div>
+    </Link>
+  )
+}
