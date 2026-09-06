@@ -1,6 +1,13 @@
 import { supabase } from '@/lib/supabase'
 import { toAppError } from '@/lib/errors'
-import type { Event, EventWithRelations, Amenity, GalleryItem, PaginatedResult, Category } from '@/types'
+import type { Event, EventWithRelations, Amenity, GalleryItem, PaginatedResult, Category, ContentStatus, AdditionalLink } from '@/types'
+import {
+  createEntityWithRelations,
+  updateEntityWithRelations,
+  deleteEntityWithCleanup,
+  duplicateEntity,
+  type GalleryInput,
+} from '@/lib/admin-crud'
 
 export type EventSortOption = 'soonest' | 'created_desc'
 export type EventDatePreset = 'hoje' | 'fim_de_semana' | 'este_mes' | 'todos'
@@ -253,4 +260,145 @@ export async function fetchEventFilterMeta(): Promise<{
   } catch (err) {
     throw toAppError(err)
   }
+}
+
+// ---------------------------------------------------------------------------
+// Admin (authenticated, all statuses)
+// ---------------------------------------------------------------------------
+
+export type AdminSortField = 'name' | 'start_datetime' | 'created_at' | 'updated_at'
+
+export interface AdminEventFilters {
+  search?: string
+  status?: ContentStatus | 'all'
+  sortField?: AdminSortField
+  sortDir?: 'asc' | 'desc'
+  page?: number
+  pageSize?: number
+}
+
+export async function fetchEventsAdminPaginated(filters: AdminEventFilters = {}): Promise<PaginatedResult<Event>> {
+  try {
+    const page = Math.max(1, filters.page || 1)
+    const pageSize = Math.max(1, filters.pageSize || 20)
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+
+    let query = supabase.from('events').select(EVENT_LIST_COLUMNS, { count: 'exact' })
+    if (filters.status && filters.status !== 'all') query = query.eq('status', filters.status)
+    if (filters.search) query = query.ilike('name', `%${filters.search}%`)
+    query = query.order(filters.sortField || 'name', { ascending: filters.sortDir !== 'desc' })
+    query = query.range(from, to)
+
+    const { data, count, error } = await query
+    if (error) throw toAppError(error)
+
+    const items = ((data || []) as unknown as Record<string, unknown>[]).map((row) => ({
+      ...row,
+      links: Array.isArray(row.links) ? row.links : [],
+    })) as unknown as Event[]
+
+    const totalCount = count ?? items.length
+    return { data: items, count: totalCount, page, pageSize, totalPages: Math.ceil(totalCount / pageSize) || 1 }
+  } catch (err) {
+    throw toAppError(err)
+  }
+}
+
+export async function fetchEventAdminById(id: string): Promise<EventWithRelations> {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select(`*, category:categories (*), event_amenities (amenity:amenities (*)), galleries (*)`)
+      .eq('id', id)
+      .single()
+
+    if (error) throw toAppError(error)
+
+    const amenities: Amenity[] = (data.event_amenities || [])
+      .map((item: { amenity: Amenity | null }) => item.amenity)
+      .filter((a): a is Amenity => a !== null)
+
+    return {
+      ...data,
+      links: Array.isArray(data.links) ? data.links : [],
+      amenities,
+      gallery: (data.galleries || []) as GalleryItem[],
+    } as unknown as EventWithRelations
+  } catch (err) {
+    throw toAppError(err)
+  }
+}
+
+export interface EventAdminInput {
+  id?: string
+  name: string
+  slug: string
+  category_id: string | null
+  promotional_image_url: string | null
+  image_aspect_ratio: string | null
+  start_datetime: string
+  end_datetime: string | null
+  venue_name: string | null
+  address: string | null
+  whatsapp: string | null
+  instagram: string | null
+  description: string | null
+  ticket_price: number | null
+  ticket_price_description: string | null
+  restrictions: string[]
+  links: AdditionalLink[]
+  status: ContentStatus
+  amenityIds: string[]
+  gallery: GalleryInput[]
+}
+
+function toEventScalar(input: EventAdminInput) {
+  return {
+    ...(input.id ? { id: input.id } : {}),
+    name: input.name,
+    slug: input.slug,
+    category_id: input.category_id,
+    promotional_image_url: input.promotional_image_url,
+    image_aspect_ratio: input.image_aspect_ratio,
+    start_datetime: input.start_datetime,
+    end_datetime: input.end_datetime,
+    venue_name: input.venue_name,
+    address: input.address,
+    whatsapp: input.whatsapp,
+    instagram: input.instagram,
+    description: input.description,
+    ticket_price: input.ticket_price,
+    ticket_price_description: input.ticket_price_description,
+    restrictions: input.restrictions,
+    links: input.links,
+    status: input.status,
+  }
+}
+
+export async function createEventAdmin(input: EventAdminInput) {
+  return createEntityWithRelations('events', toEventScalar(input), {
+    amenities: { joinTable: 'event_amenities', entityColumn: 'event_id', amenityIds: input.amenityIds },
+    gallery: { entityColumn: 'event_id', images: input.gallery },
+  })
+}
+
+export async function updateEventAdmin(id: string, input: EventAdminInput) {
+  return updateEntityWithRelations('events', id, toEventScalar(input), {
+    amenities: { joinTable: 'event_amenities', entityColumn: 'event_id', amenityIds: input.amenityIds },
+    gallery: { entityColumn: 'event_id', images: input.gallery },
+  })
+}
+
+export async function deleteEventAdmin(id: string): Promise<void> {
+  const { data } = await supabase.from('events').select('promotional_image_url, galleries(image_url)').eq('id', id).single()
+  const imageUrls = [
+    (data as { promotional_image_url?: string | null } | null)?.promotional_image_url,
+    ...(((data as { galleries?: { image_url: string }[] } | null)?.galleries || []).map((g) => g.image_url)),
+  ]
+  await deleteEntityWithCleanup('events', id, imageUrls)
+}
+
+export async function duplicateEventAdmin(id: string) {
+  return duplicateEntity('events', id, 'name', { promotional_image_url: null }, { joinTable: 'event_amenities', entityColumn: 'event_id' })
 }
