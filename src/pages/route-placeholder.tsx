@@ -1,25 +1,55 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useLocation } from 'react-router-dom'
+import { PageHeader } from '@/components/layout/page-header'
+import { Breadcrumbs } from '@/components/layout/breadcrumbs'
+import { Head } from '@/components/seo/head'
+import { Card, CardContent } from '@/components/ui/card'
 
-type Props = {
+interface Props {
   name: string
+  description?: string
 }
 
 /**
- * Temporary Phase 1 stand-in for every route's real content. Verifies the
- * route table resolves and params are readable; replaced page by page in
- * later phases.
+ * Route placeholder rendering with PageHeader, SEO Head, and breadcrumbs
+ * inside the AppShell.
  */
-export function RoutePlaceholder({ name }: Props) {
+export function RoutePlaceholder({ name, description }: Props) {
   const params = useParams()
+  const location = useLocation()
+
+  const isHome = location.pathname === '/'
+  const breadcrumbs = isHome ? undefined : (
+    <Breadcrumbs
+      items={[
+        { label: 'Início', to: '/' },
+        { label: name },
+      ]}
+    />
+  )
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-semibold text-slate-900">{name}</h1>
+    <>
+      <Head title={name} description={description} />
+      <PageHeader
+        title={name}
+        description={
+          description ??
+          'Guia oficial e diretório comercial e turístico de Bom Jesus da Lapa.'
+        }
+        breadcrumbs={breadcrumbs}
+      />
       {Object.keys(params).length > 0 && (
-        <pre className="mt-4 text-sm text-slate-500">
-          {JSON.stringify(params, null, 2)}
-        </pre>
+        <Card className="mt-4">
+          <CardContent className="pt-5">
+            <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block mb-2">
+              Parâmetros da Rota
+            </span>
+            <pre className="text-xs font-mono bg-bg-subtle p-3 rounded-md text-text-secondary overflow-x-auto">
+              {JSON.stringify(params, null, 2)}
+            </pre>
+          </CardContent>
+        </Card>
       )}
-    </div>
+    </>
   )
 }
