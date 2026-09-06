@@ -1,37 +1,22 @@
-import { Suspense, lazy } from 'react'
-import { Outlet, createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
+import { RootLayout } from '@/app/root-layout'
 import { RouteError } from '@/app/route-error'
 import HomePage from '@/pages/home'
-
-const BusinessListPage = lazy(() => import('@/pages/businesses'))
-const BusinessDetailPage = lazy(() => import('@/pages/businesses/detail'))
-const EventListPage = lazy(() => import('@/pages/events'))
-const EventDetailPage = lazy(() => import('@/pages/events/detail'))
-const PackageListPage = lazy(() => import('@/pages/packages'))
-const PackageDetailPage = lazy(() => import('@/pages/packages/detail'))
-const LodgingListPage = lazy(() => import('@/pages/lodging'))
-const LodgingDetailPage = lazy(() => import('@/pages/lodging/detail'))
-const DiningListPage = lazy(() => import('@/pages/dining'))
-const DiningDetailPage = lazy(() => import('@/pages/dining/detail'))
-const SubmitPage = lazy(() => import('@/pages/submit'))
-const AdminDashboardPage = lazy(() => import('@/pages/admin'))
-const NotFoundPage = lazy(() => import('@/pages/not-found'))
-
-function RouteLoadingFallback() {
-  return (
-    <div className="flex min-h-svh items-center justify-center p-8 text-slate-500">
-      Carregando…
-    </div>
-  )
-}
-
-function RootLayout() {
-  return (
-    <Suspense fallback={<RouteLoadingFallback />}>
-      <Outlet />
-    </Suspense>
-  )
-}
+import {
+  BusinessListPage,
+  BusinessDetailPage,
+  EventListPage,
+  EventDetailPage,
+  PackageListPage,
+  PackageDetailPage,
+  LodgingListPage,
+  LodgingDetailPage,
+  DiningListPage,
+  DiningDetailPage,
+  SubmitPage,
+  AdminDashboardPage,
+  NotFoundPage,
+} from '@/app/lazy-pages'
 
 export const router = createBrowserRouter([
   {

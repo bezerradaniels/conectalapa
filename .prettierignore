@@ -1,0 +1,9 @@
+dist
+node_modules
+package-lock.json
+
+# Third-party and hand-authored docs kept in their original formatting
+.agents
+docs
+README.md
+.mcp.json
