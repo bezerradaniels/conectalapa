@@ -59,7 +59,7 @@ export function PackageDetailView({ pkg, related }: PackageDetailViewProps) {
       />
 
       {pkg.image_url && (
-        <div className="w-full aspect-16/9 overflow-hidden rounded-2xl bg-bg-subtle border border-border-hairline">
+        <div className="w-full aspect-video overflow-hidden rounded-2xl bg-bg-subtle border border-border-hairline">
           <img
             src={optimizeImageUrl(pkg.image_url, 700) || undefined}
             alt={`Pacote para ${pkg.destination}`}

@@ -25,7 +25,7 @@ export function LodgingCard({ lodging }: LodgingCardProps) {
     >
       <span className="sr-only">Ver detalhes de </span>
       {firstImage ? (
-        <div className="relative aspect-16/9 w-full bg-bg-subtle overflow-hidden">
+        <div className="relative aspect-video w-full bg-bg-subtle overflow-hidden">
           <img
             src={optimizeImageUrl(firstImage, 700) || undefined}
             alt=""
@@ -49,7 +49,7 @@ export function LodgingCard({ lodging }: LodgingCardProps) {
           )}
         </div>
       ) : (
-        <div className="relative aspect-16/9 w-full bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center text-amber-700/60 border-b border-border-hairline">
+        <div className="relative aspect-video w-full bg-linear-to-br from-amber-50 to-orange-100 flex items-center justify-center text-amber-700/60 border-b border-border-hairline">
           <Bed className="w-10 h-10 opacity-50" aria-hidden="true" />
           <div className="absolute top-2.5 left-2.5">
             <span className="inline-flex items-center rounded-md bg-white/95 px-2.5 py-1 text-2xs font-semibold text-slate-800 shadow-xs">

@@ -49,7 +49,7 @@ export function PackageCardSkeleton() {
   return (
     <div className="flex flex-col rounded-xl border border-border-hairline bg-bg-surface overflow-hidden">
       {/* 16:9 Image placeholder */}
-      <div className="aspect-16/9 w-full bg-bg-subtle">
+      <div className="aspect-video w-full bg-bg-subtle">
         <Skeleton className="w-full h-full" />
       </div>
       <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
@@ -70,7 +70,7 @@ export function LodgingCardSkeleton() {
   return (
     <div className="flex flex-col rounded-xl border border-border-hairline bg-bg-surface overflow-hidden">
       {/* 16:9 Image placeholder */}
-      <div className="aspect-16/9 w-full bg-bg-subtle">
+      <div className="aspect-video w-full bg-bg-subtle">
         <Skeleton className="w-full h-full" />
       </div>
       <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
@@ -94,7 +94,7 @@ export function DiningCardSkeleton() {
   return (
     <div className="flex flex-col rounded-xl border border-border-hairline bg-bg-surface overflow-hidden">
       {/* 16:9 Image placeholder */}
-      <div className="aspect-16/9 w-full bg-bg-subtle">
+      <div className="aspect-video w-full bg-bg-subtle">
         <Skeleton className="w-full h-full" />
       </div>
       <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">

@@ -133,7 +133,7 @@ export function TabTrigger({
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         isActive
-          ? 'text-accent-text font-semibold bg-accent-subtle/50 after:absolute after:bottom-[-5px] after:left-0 after:right-0 after:h-0.5 after:bg-accent'
+          ? 'text-accent-text font-semibold bg-accent-subtle/50 after:absolute after:-bottom-1.25 after:left-0 after:right-0 after:h-0.5 after:bg-accent'
           : 'text-text-secondary hover:text-text-primary hover:bg-bg-subtle',
         className
       )}

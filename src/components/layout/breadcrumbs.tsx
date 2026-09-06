@@ -29,7 +29,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
               {isLast || !item.to ? (
                 <span
                   aria-current={isLast ? 'page' : undefined}
-                  className="font-medium text-text-primary truncate max-w-[200px]"
+                  className="font-medium text-text-primary truncate max-w-50"
                 >
                   {item.label}
                 </span>

@@ -20,7 +20,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
     >
       <span className="sr-only">Ver detalhes do pacote para </span>
       {pkg.image_url ? (
-        <div className="relative aspect-16/9 w-full bg-bg-subtle overflow-hidden">
+        <div className="relative aspect-video w-full bg-bg-subtle overflow-hidden">
           <img
             src={optimizeImageUrl(pkg.image_url, 700) || undefined}
             alt=""
@@ -44,7 +44,7 @@ export function PackageCard({ pkg }: PackageCardProps) {
           </div>
         </div>
       ) : (
-        <div className="relative aspect-16/9 w-full bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center text-teal-600/70 border-b border-border-hairline">
+        <div className="relative aspect-video w-full bg-linear-to-br from-emerald-50 to-teal-100 flex items-center justify-center text-teal-600/70 border-b border-border-hairline">
           <Palmtree className="w-10 h-10 opacity-50" aria-hidden="true" />
           <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
             <span className="inline-flex items-center gap-1 rounded-md bg-white/95 px-2.5 py-1 text-2xs font-semibold text-slate-800 shadow-xs">

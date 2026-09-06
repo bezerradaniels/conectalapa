@@ -27,7 +27,7 @@ export function DiningCard({ dining }: DiningCardProps) {
     >
       <span className="sr-only">Ver detalhes de </span>
       {firstImage ? (
-        <div className="relative aspect-16/9 w-full bg-bg-subtle overflow-hidden">
+        <div className="relative aspect-video w-full bg-bg-subtle overflow-hidden">
           <img
             src={optimizeImageUrl(firstImage, 700) || undefined}
             alt=""
@@ -51,7 +51,7 @@ export function DiningCard({ dining }: DiningCardProps) {
           )}
         </div>
       ) : (
-        <div className="relative aspect-16/9 w-full bg-gradient-to-br from-orange-50 to-rose-100 flex items-center justify-center text-orange-700/60 border-b border-border-hairline">
+        <div className="relative aspect-video w-full bg-linear-to-br from-orange-50 to-rose-100 flex items-center justify-center text-orange-700/60 border-b border-border-hairline">
           <UtensilsCrossed className="w-10 h-10 opacity-50" aria-hidden="true" />
           <div className="absolute top-2.5 left-2.5">
             <span className="inline-flex items-center rounded-md bg-white/95 px-2.5 py-1 text-2xs font-semibold text-slate-800 shadow-xs">

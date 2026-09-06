@@ -241,7 +241,7 @@ export default function DevTokensPage() {
                 leadingIcon={<Trash2 className="w-3.5 h-3.5" />}
                 aria-label="Excluir cadastro"
               />
-              <div className="max-w-[200px]">
+              <div className="max-w-50">
                 <Button variant="secondary" className="w-full">
                   Texto extremamente longo que sofre overflow truncado com reticências
                 </Button>

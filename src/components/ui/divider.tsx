@@ -16,7 +16,7 @@ export const Divider = forwardRef<HTMLDivElement, DividerProps>(function Divider
         ref={ref}
         role="separator"
         aria-orientation="vertical"
-        className={cn('inline-block h-full w-[1px] bg-border-hairline self-stretch', className)}
+        className={cn('inline-block h-full w-px bg-border-hairline self-stretch', className)}
         {...props}
       />
     )

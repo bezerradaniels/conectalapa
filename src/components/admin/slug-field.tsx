@@ -71,7 +71,7 @@ export function SlugField({ table, value, onChange, sourceText, entityId, isPubl
           error={error}
           className="pr-9"
         />
-        <span className="absolute right-3 top-[34px] pointer-events-none">
+        <span className="absolute right-3 top-8.5 pointer-events-none">
           {availability === 'checking' && <Loader2 className="w-4 h-4 animate-spin text-text-muted" aria-hidden="true" />}
           {availability === 'available' && <Check className="w-4 h-4 text-success-text" aria-hidden="true" />}
           {availability === 'taken' && <X className="w-4 h-4 text-danger-solid" aria-hidden="true" />}

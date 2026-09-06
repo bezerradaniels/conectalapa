@@ -81,7 +81,7 @@ export function CategoryNavSection() {
               <Link
                 key={cat.id}
                 to={cat.path}
-                className={`group flex items-center justify-between p-4 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-accent min-h-[64px] ${
+                className={`group flex items-center justify-between p-4 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-accent min-h-16 ${
                   cat.featured
                     ? 'border-border-subtle bg-bg-surface hover:border-accent-border hover:shadow-xs'
                     : 'border-border-hairline bg-bg-surface hover:border-border-subtle hover:bg-bg-subtle/50'
@@ -112,7 +112,7 @@ export function CategoryNavSection() {
                   {isLoading ? (
                     <span className="inline-block w-6 h-5 rounded bg-slate-100 animate-pulse" />
                   ) : count !== null && count > 0 ? (
-                    <span className="inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-full text-xs font-semibold bg-bg-subtle text-text-secondary border border-border-hairline">
+                    <span className="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full text-xs font-semibold bg-bg-subtle text-text-secondary border border-border-hairline">
                       {count}
                     </span>
                   ) : null}

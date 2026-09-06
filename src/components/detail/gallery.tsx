@@ -39,7 +39,7 @@ export function Gallery({ images, entityName, className }: GalleryProps) {
             aria-label={`Ver imagem ${index + 1} de ${sorted.length} de ${entityName}`}
             className={
               sorted.length === 1
-                ? 'relative aspect-16/9 w-full rounded-xl overflow-hidden bg-bg-subtle border border-border-hairline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2'
+                ? 'relative aspect-video w-full rounded-xl overflow-hidden bg-bg-subtle border border-border-hairline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2'
                 : 'relative aspect-square w-full rounded-lg overflow-hidden bg-bg-subtle border border-border-hairline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2'
             }
           >

@@ -79,8 +79,8 @@ export function EventDetailView({ event, related }: EventDetailViewProps) {
       {event.promotional_image_url && (
         <div
           className={`w-full overflow-hidden rounded-2xl bg-bg-subtle border border-border-hairline ${
-            { '1:1': 'aspect-square', '4:5': 'aspect-4/5', '16:9': 'aspect-16/9' }[event.image_aspect_ratio || '16:9'] ||
-            'aspect-16/9'
+            { '1:1': 'aspect-square', '4:5': 'aspect-4/5', '16:9': 'aspect-video' }[event.image_aspect_ratio || '16:9'] ||
+            'aspect-video'
           }`}
         >
           <img

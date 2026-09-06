@@ -33,7 +33,7 @@ export function SortSelect({
         onChange={(e) => onChange(e.target.value)}
         options={options}
         aria-label={label}
-        className="w-auto min-w-[150px] text-xs py-1.5"
+        className="w-auto min-w-37.5 text-xs py-1.5"
       />
     </div>
   )

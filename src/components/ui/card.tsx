@@ -62,7 +62,7 @@ export const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivEleme
     return (
       <div
         ref={ref}
-        className={cn('flex items-center p-5 sm:p-6 pt-0 border-t border-border-hairline mt-4 pt-4', className)}
+        className={cn('flex items-center p-5 sm:p-6 border-t border-border-hairline mt-4 pt-4', className)}
         {...props}
       />
     )
