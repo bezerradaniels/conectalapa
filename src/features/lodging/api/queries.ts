@@ -1,6 +1,13 @@
 import { supabase } from '@/lib/supabase'
 import { toAppError } from '@/lib/errors'
-import type { Lodging, LodgingWithRelations, Amenity, GalleryItem, PaginatedResult, Category } from '@/types'
+import type { Lodging, LodgingWithRelations, Amenity, GalleryItem, PaginatedResult, Category, ContentStatus } from '@/types'
+import {
+  createEntityWithRelations,
+  updateEntityWithRelations,
+  deleteEntityWithCleanup,
+  duplicateEntity,
+  type GalleryInput,
+} from '@/lib/admin-crud'
 
 export type LodgingSortOption = 'name_asc' | 'created_desc'
 
@@ -227,4 +234,119 @@ export async function fetchLodgingFilterMeta(): Promise<{
   } catch (err) {
     throw toAppError(err)
   }
+}
+
+// ---------------------------------------------------------------------------
+// Admin (authenticated, all statuses)
+// ---------------------------------------------------------------------------
+
+export type AdminSortField = 'name' | 'created_at' | 'updated_at'
+
+export interface AdminLodgingFilters {
+  search?: string
+  status?: ContentStatus | 'all'
+  sortField?: AdminSortField
+  sortDir?: 'asc' | 'desc'
+  page?: number
+  pageSize?: number
+}
+
+export async function fetchLodgingAdminPaginated(filters: AdminLodgingFilters = {}): Promise<PaginatedResult<Lodging>> {
+  try {
+    const page = Math.max(1, filters.page || 1)
+    const pageSize = Math.max(1, filters.pageSize || 20)
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+
+    let query = supabase.from('lodging').select(LODGING_LIST_COLUMNS, { count: 'exact' })
+    if (filters.status && filters.status !== 'all') query = query.eq('status', filters.status)
+    if (filters.search) query = query.ilike('name', `%${filters.search}%`)
+    query = query.order(filters.sortField || 'name', { ascending: filters.sortDir !== 'desc' })
+    query = query.range(from, to)
+
+    const { data, count, error } = await query
+    if (error) throw toAppError(error)
+
+    const items = (data || []) as unknown as Lodging[]
+    const totalCount = count ?? items.length
+    return { data: items, count: totalCount, page, pageSize, totalPages: Math.ceil(totalCount / pageSize) || 1 }
+  } catch (err) {
+    throw toAppError(err)
+  }
+}
+
+export async function fetchLodgingAdminById(id: string): Promise<LodgingWithRelations> {
+  try {
+    const { data, error } = await supabase
+      .from('lodging')
+      .select(`*, category:categories (*), lodging_amenities (amenity:amenities (*)), galleries (*)`)
+      .eq('id', id)
+      .single()
+
+    if (error) throw toAppError(error)
+
+    const amenities: Amenity[] = (data.lodging_amenities || [])
+      .map((item: { amenity: Amenity | null }) => item.amenity)
+      .filter((a): a is Amenity => a !== null)
+
+    return { ...data, amenities, gallery: (data.galleries || []) as GalleryItem[] } as unknown as LodgingWithRelations
+  } catch (err) {
+    throw toAppError(err)
+  }
+}
+
+export interface LodgingAdminInput {
+  id?: string
+  name: string
+  slug: string
+  category_id: string | null
+  lodging_type: string
+  address: string | null
+  whatsapp: string | null
+  instagram: string | null
+  description: string | null
+  price_range: string | null
+  status: ContentStatus
+  amenityIds: string[]
+  gallery: GalleryInput[]
+}
+
+function toLodgingScalar(input: LodgingAdminInput) {
+  return {
+    ...(input.id ? { id: input.id } : {}),
+    name: input.name,
+    slug: input.slug,
+    category_id: input.category_id,
+    lodging_type: input.lodging_type,
+    address: input.address,
+    whatsapp: input.whatsapp,
+    instagram: input.instagram,
+    description: input.description,
+    price_range: input.price_range,
+    status: input.status,
+  }
+}
+
+export async function createLodgingAdmin(input: LodgingAdminInput) {
+  return createEntityWithRelations('lodging', toLodgingScalar(input), {
+    amenities: { joinTable: 'lodging_amenities', entityColumn: 'lodging_id', amenityIds: input.amenityIds },
+    gallery: { entityColumn: 'lodging_id', images: input.gallery },
+  })
+}
+
+export async function updateLodgingAdmin(id: string, input: LodgingAdminInput) {
+  return updateEntityWithRelations('lodging', id, toLodgingScalar(input), {
+    amenities: { joinTable: 'lodging_amenities', entityColumn: 'lodging_id', amenityIds: input.amenityIds },
+    gallery: { entityColumn: 'lodging_id', images: input.gallery },
+  })
+}
+
+export async function deleteLodgingAdmin(id: string): Promise<void> {
+  const { data } = await supabase.from('lodging').select('galleries(image_url)').eq('id', id).single()
+  const imageUrls = ((data as { galleries?: { image_url: string }[] } | null)?.galleries || []).map((g) => g.image_url)
+  await deleteEntityWithCleanup('lodging', id, imageUrls)
+}
+
+export async function duplicateLodgingAdmin(id: string) {
+  return duplicateEntity('lodging', id, 'name', {}, { joinTable: 'lodging_amenities', entityColumn: 'lodging_id' })
 }
