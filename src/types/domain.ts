@@ -61,8 +61,17 @@ export interface EventWithRelations extends Event {
   gallery: GalleryItem[]
 }
 
+export interface PackageAgencySummary {
+  id: string
+  name: string
+  slug: string
+  logo_url: string | null
+  whatsapp: string | null
+}
+
 export interface Package extends PackageRow {
   category?: Category | null
+  agency?: PackageAgencySummary | null
 }
 
 export interface PackageWithRelations extends Package {

@@ -6,6 +6,7 @@ export interface EventFilters extends Record<string, unknown> {
   category?: string
   search?: string
   upcomingOnly?: boolean
+  excludeEnded?: boolean
   limit?: number
 }
 
@@ -54,7 +55,10 @@ export async function fetchEvents(filters: EventFilters = {}): Promise<Event[]> 
       query = query.eq('categories.slug', filters.category)
     }
 
-    if (filters.upcomingOnly) {
+    if (filters.excludeEnded) {
+      const nowIso = new Date().toISOString()
+      query = query.or(`end_datetime.gte.${nowIso},and(end_datetime.is.null,start_datetime.gte.${nowIso})`)
+    } else if (filters.upcomingOnly) {
       query = query.gte('start_datetime', new Date().toISOString())
     }
 

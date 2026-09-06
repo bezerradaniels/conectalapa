@@ -41,4 +41,10 @@ export const queryKeys = {
     list: (filters: Filters) => ['dining', 'list', filters] as const,
     detail: (slug: string) => ['dining', 'detail', slug] as const,
   },
+  home: {
+    counts: ['home', 'counts'] as const,
+    upcomingEvents: (limit: number) => ['home', 'upcoming-events', limit] as const,
+    upcomingPackages: (limit: number) => ['home', 'upcoming-packages', limit] as const,
+    recentEntries: (limit: number) => ['home', 'recent-entries', limit] as const,
+  },
 } as const
