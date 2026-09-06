@@ -90,6 +90,30 @@ export function LodgingCardSkeleton() {
   )
 }
 
+export function DiningCardSkeleton() {
+  return (
+    <div className="flex flex-col rounded-xl border border-border-hairline bg-bg-surface overflow-hidden">
+      {/* 16:9 Image placeholder */}
+      <div className="aspect-16/9 w-full bg-bg-subtle">
+        <Skeleton className="w-full h-full" />
+      </div>
+      <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-20 rounded-md" />
+            <Skeleton className="h-4 w-14 rounded-md" />
+          </div>
+          <Skeleton className="h-5 w-4/5 rounded-md" />
+          <Skeleton className="h-3 w-full rounded-md" />
+        </div>
+        <div className="pt-2.5 border-t border-border-hairline">
+          <Skeleton className="h-3.5 w-1/3 rounded-md" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function RecentEntryCardSkeleton() {
   return (
     <div className="flex items-center justify-between gap-3 p-3.5 rounded-xl border border-border-hairline bg-bg-surface">
