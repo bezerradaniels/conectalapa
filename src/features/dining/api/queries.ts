@@ -1,7 +1,14 @@
 import { supabase } from '@/lib/supabase'
 import { toAppError } from '@/lib/errors'
-import type { Dining, DiningWithRelations, Amenity, GalleryItem, PaginatedResult, Category } from '@/types'
+import type { Dining, DiningWithRelations, Amenity, GalleryItem, PaginatedResult, Category, ContentStatus, OpeningHourInterval } from '@/types'
 import { getOpenStatus } from '@/lib/format'
+import {
+  createEntityWithRelations,
+  updateEntityWithRelations,
+  deleteEntityWithCleanup,
+  duplicateEntity,
+  type GalleryInput,
+} from '@/lib/admin-crud'
 
 export type DiningSortOption = 'name_asc' | 'created_desc'
 
@@ -242,4 +249,130 @@ export async function fetchDiningFilterMeta(): Promise<{
   } catch (err) {
     throw toAppError(err)
   }
+}
+
+// ---------------------------------------------------------------------------
+// Admin (authenticated, all statuses)
+// ---------------------------------------------------------------------------
+
+export type AdminSortField = 'name' | 'created_at' | 'updated_at'
+
+export interface AdminDiningFilters {
+  search?: string
+  status?: ContentStatus | 'all'
+  sortField?: AdminSortField
+  sortDir?: 'asc' | 'desc'
+  page?: number
+  pageSize?: number
+}
+
+export async function fetchDiningAdminPaginated(filters: AdminDiningFilters = {}): Promise<PaginatedResult<Dining>> {
+  try {
+    const page = Math.max(1, filters.page || 1)
+    const pageSize = Math.max(1, filters.pageSize || 20)
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+
+    let query = supabase.from('dining').select(DINING_LIST_COLUMNS, { count: 'exact' })
+    if (filters.status && filters.status !== 'all') query = query.eq('status', filters.status)
+    if (filters.search) query = query.ilike('name', `%${filters.search}%`)
+    query = query.order(filters.sortField || 'name', { ascending: filters.sortDir !== 'desc' })
+    query = query.range(from, to)
+
+    const { data, count, error } = await query
+    if (error) throw toAppError(error)
+
+    const items = ((data || []) as unknown as Record<string, unknown>[]).map((row) => ({
+      ...row,
+      opening_hours: Array.isArray(row.opening_hours) ? row.opening_hours : [],
+    })) as unknown as Dining[]
+
+    const totalCount = count ?? items.length
+    return { data: items, count: totalCount, page, pageSize, totalPages: Math.ceil(totalCount / pageSize) || 1 }
+  } catch (err) {
+    throw toAppError(err)
+  }
+}
+
+export async function fetchDiningAdminById(id: string): Promise<DiningWithRelations> {
+  try {
+    const { data, error } = await supabase
+      .from('dining')
+      .select(`*, category:categories (*), dining_amenities (amenity:amenities (*)), galleries (*)`)
+      .eq('id', id)
+      .single()
+
+    if (error) throw toAppError(error)
+
+    const amenities: Amenity[] = (data.dining_amenities || [])
+      .map((item: { amenity: Amenity | null }) => item.amenity)
+      .filter((a): a is Amenity => a !== null)
+
+    return {
+      ...data,
+      opening_hours: Array.isArray(data.opening_hours) ? data.opening_hours : [],
+      amenities,
+      gallery: (data.galleries || []) as GalleryItem[],
+    } as unknown as DiningWithRelations
+  } catch (err) {
+    throw toAppError(err)
+  }
+}
+
+export interface DiningAdminInput {
+  id?: string
+  name: string
+  slug: string
+  category_id: string | null
+  restaurant_type: string
+  address: string | null
+  whatsapp: string | null
+  instagram: string | null
+  opening_hours: OpeningHourInterval[]
+  price_range: string | null
+  description: string | null
+  status: ContentStatus
+  amenityIds: string[]
+  gallery: GalleryInput[]
+}
+
+function toDiningScalar(input: DiningAdminInput) {
+  return {
+    ...(input.id ? { id: input.id } : {}),
+    name: input.name,
+    slug: input.slug,
+    category_id: input.category_id,
+    restaurant_type: input.restaurant_type,
+    address: input.address,
+    whatsapp: input.whatsapp,
+    instagram: input.instagram,
+    opening_hours: input.opening_hours,
+    price_range: input.price_range,
+    description: input.description,
+    status: input.status,
+  }
+}
+
+export async function createDiningAdmin(input: DiningAdminInput) {
+  return createEntityWithRelations('dining', toDiningScalar(input), {
+    amenities: { joinTable: 'dining_amenities', entityColumn: 'dining_id', amenityIds: input.amenityIds },
+    gallery: { entityColumn: 'dining_id', images: input.gallery },
+  })
+}
+
+export async function updateDiningAdmin(id: string, input: DiningAdminInput) {
+  return updateEntityWithRelations('dining', id, toDiningScalar(input), {
+    amenities: { joinTable: 'dining_amenities', entityColumn: 'dining_id', amenityIds: input.amenityIds },
+    gallery: { entityColumn: 'dining_id', images: input.gallery },
+  })
+}
+
+export async function deleteDiningAdmin(id: string): Promise<void> {
+  const { data } = await supabase.from('dining').select('galleries(image_url)').eq('id', id).single()
+  const imageUrls = ((data as { galleries?: { image_url: string }[] } | null)?.galleries || []).map((g) => g.image_url)
+  await deleteEntityWithCleanup('dining', id, imageUrls)
+}
+
+export async function duplicateDiningAdmin(id: string) {
+  return duplicateEntity('dining', id, 'name', {}, { joinTable: 'dining_amenities', entityColumn: 'dining_id' })
 }
