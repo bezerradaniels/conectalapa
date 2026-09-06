@@ -2,6 +2,8 @@ import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from '@/app/root-layout'
 import { RouteError } from '@/app/route-error'
 import { AppShell } from '@/components/layout/app-shell'
+import { AdminShell } from '@/components/admin/admin-shell'
+import { ProtectedRoute } from '@/components/admin/protected-route'
 import HomePage from '@/pages/home'
 import {
   BusinessListPage,
@@ -16,9 +18,21 @@ import {
   DiningDetailPage,
   SubmitPage,
   SearchPage,
-  AdminDashboardPage,
   AboutPage,
   NotFoundPage,
+  AdminLoginPage,
+  AdminDashboardPage,
+  AdminBusinessListPage,
+  AdminBusinessFormPage,
+  AdminEventListPage,
+  AdminEventFormPage,
+  AdminPackageListPage,
+  AdminPackageFormPage,
+  AdminLodgingListPage,
+  AdminLodgingFormPage,
+  AdminDiningListPage,
+  AdminDiningFormPage,
+  AdminSubmissionsListPage,
 } from '@/app/lazy-pages'
 
 export const router = createBrowserRouter([
@@ -43,8 +57,39 @@ export const router = createBrowserRouter([
           { path: 'gastronomia/:slug', element: <DiningDetailPage /> },
           { path: 'busca', element: <SearchPage /> },
           { path: 'solicitar', element: <SubmitPage /> },
-          { path: 'admin', element: <AdminDashboardPage /> },
           { path: 'sobre', element: <AboutPage /> },
+          { path: '*', element: <NotFoundPage /> },
+        ],
+      },
+      {
+        path: 'admin/login',
+        element: <AdminLoginPage />,
+      },
+      {
+        path: 'admin',
+        element: (
+          <ProtectedRoute>
+            <AdminShell />
+          </ProtectedRoute>
+        ),
+        children: [
+          { index: true, element: <AdminDashboardPage /> },
+          { path: 'empresas', element: <AdminBusinessListPage /> },
+          { path: 'empresas/novo', element: <AdminBusinessFormPage /> },
+          { path: 'empresas/:id', element: <AdminBusinessFormPage /> },
+          { path: 'eventos', element: <AdminEventListPage /> },
+          { path: 'eventos/novo', element: <AdminEventFormPage /> },
+          { path: 'eventos/:id', element: <AdminEventFormPage /> },
+          { path: 'pacotes', element: <AdminPackageListPage /> },
+          { path: 'pacotes/novo', element: <AdminPackageFormPage /> },
+          { path: 'pacotes/:id', element: <AdminPackageFormPage /> },
+          { path: 'hospedagem', element: <AdminLodgingListPage /> },
+          { path: 'hospedagem/novo', element: <AdminLodgingFormPage /> },
+          { path: 'hospedagem/:id', element: <AdminLodgingFormPage /> },
+          { path: 'gastronomia', element: <AdminDiningListPage /> },
+          { path: 'gastronomia/novo', element: <AdminDiningFormPage /> },
+          { path: 'gastronomia/:id', element: <AdminDiningFormPage /> },
+          { path: 'solicitacoes', element: <AdminSubmissionsListPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },
