@@ -23,16 +23,16 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.error) {
       return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-8 text-center">
-          <h1 className="text-2xl font-semibold text-slate-900">
+          <h1 className="text-2xl font-semibold text-text-primary">
             Algo deu errado
           </h1>
-          <p className="text-slate-600">
+          <p className="text-text-secondary max-w-sm">
             Ocorreu um erro inesperado. Tente recarregar a página.
           </p>
           <button
             type="button"
             onClick={() => window.location.assign('/')}
-            className="font-medium text-sky-600 underline"
+            className="font-medium text-accent-text underline"
           >
             Voltar para o início
           </button>

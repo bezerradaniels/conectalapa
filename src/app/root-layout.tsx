@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { Outlet, ScrollRestoration } from 'react-router-dom'
+import { OfflineBanner } from '@/app/offline-banner'
 
 function RouteLoadingFallback() {
   return (
@@ -13,6 +14,7 @@ export function RootLayout() {
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
       <ScrollRestoration />
+      <OfflineBanner />
       <Outlet />
     </Suspense>
   )
