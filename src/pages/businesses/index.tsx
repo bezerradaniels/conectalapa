@@ -1,86 +1,312 @@
-import { useBusinesses } from '@/features/businesses/api/hooks'
-import { Spinner } from '@/components/ui/spinner'
-import { Button } from '@/components/ui/button'
+import { useMemo } from 'react'
+import { z } from 'zod'
+import { Search } from 'lucide-react'
+import {
+  ListingLayout,
+  FilterBar,
+  FilterChips,
+  SortSelect,
+  Pagination,
+  ResultsGrid,
+  ListingEmptyState,
+  useListingParams,
+  type FilterChip,
+} from '@/components/listing'
+import { BusinessCard, BusinessCardSkeleton } from '@/components/cards'
+import { useBusinessesPaginated, useBusinessFilterMeta } from '@/features/businesses/api/hooks'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+
+// Zod schema for URL params validation
+const businessParamsSchema = z.object({
+  category: z.string().optional(),
+  neighborhood: z.string().optional(),
+  amenity: z.string().optional(),
+  openNow: z
+    .string()
+    .optional()
+    .transform((val) => val === 'true'),
+  sort: z.enum(['name_asc', 'created_desc']).default('name_asc'),
+  page: z.coerce.number().int().positive().default(1),
+  search: z.string().optional(),
+})
+
+type BusinessParams = z.infer<typeof businessParamsSchema>
+
+const DEFAULT_PARAMS: BusinessParams = {
+  sort: 'name_asc',
+  page: 1,
+  openNow: false,
+}
+
+const SORT_OPTIONS = [
+  { value: 'name_asc', label: 'Nome (A–Z)' },
+  { value: 'created_desc', label: 'Mais recentes' },
+]
 
 export default function BusinessListPage() {
-  const { data: businesses, isLoading, isError, error, refetch } = useBusinesses()
+  const { params, setParam, setParams, clearParams } = useListingParams({
+    schema: businessParamsSchema,
+    defaultValues: DEFAULT_PARAMS,
+  })
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center p-12 text-slate-500" data-testid="loading-state">
-        <Spinner size="lg" className="mb-4 text-sky-500" />
-        <p className="text-sm font-medium">Carregando empresas de Bom Jesus da Lapa...</p>
-      </div>
-    )
-  }
+  // Fetch filter options (categories, amenities, neighborhoods)
+  const { data: meta } = useBusinessFilterMeta()
 
-  if (isError) {
-    return (
-      <div className="rounded-xl border border-red-200 bg-red-50/50 p-6 text-center text-red-700" data-testid="error-state">
-        <h3 className="font-semibold">Erro ao carregar empresas</h3>
-        <p className="mt-1 text-sm text-red-600">{error?.message || 'Ocorreu um erro ao buscar as empresas.'}</p>
-        <Button variant="secondary" size="sm" onClick={() => refetch()} className="mt-4 border-red-300 hover:bg-red-100">
-          Tentar novamente
-        </Button>
-      </div>
-    )
-  }
+  // Fetch paginated businesses matching current params
+  const {
+    data: result,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useBusinessesPaginated({
+    category: params.category,
+    neighborhood: params.neighborhood,
+    amenity: params.amenity,
+    openNow: params.openNow,
+    search: params.search,
+    sort: params.sort,
+    page: params.page,
+    pageSize: 12,
+  })
 
-  if (!businesses || businesses.length === 0) {
+  // Active filter count (excluding sort and page)
+  const activeCount = useMemo(() => {
+    let count = 0
+    if (params.category) count++
+    if (params.neighborhood) count++
+    if (params.amenity) count++
+    if (params.openNow) count++
+    if (params.search) count++
+    return count
+  }, [params])
+
+  // Active chips for individual dismissal
+  const chips = useMemo<FilterChip[]>(() => {
+    const list: FilterChip[] = []
+
+    if (params.search) {
+      list.push({
+        id: 'search',
+        label: `Busca: "${params.search}"`,
+        onRemove: () => setParam('search', undefined),
+      })
+    }
+
+    if (params.category && meta?.categories) {
+      const cat = meta.categories.find((c) => c.slug === params.category)
+      list.push({
+        id: 'category',
+        label: cat?.name || params.category,
+        onRemove: () => setParam('category', undefined),
+      })
+    }
+
+    if (params.neighborhood) {
+      list.push({
+        id: 'neighborhood',
+        label: `Bairro: ${params.neighborhood}`,
+        onRemove: () => setParam('neighborhood', undefined),
+      })
+    }
+
+    if (params.amenity && meta?.amenities) {
+      const am = meta.amenities.find((a) => a.slug === params.amenity)
+      list.push({
+        id: 'amenity',
+        label: am?.name || params.amenity,
+        onRemove: () => setParam('amenity', undefined),
+      })
+    }
+
+    if (params.openNow) {
+      list.push({
+        id: 'openNow',
+        label: 'Aberto agora',
+        onRemove: () => setParam('openNow', false),
+      })
+    }
+
+    return list
+  }, [params, meta, setParam])
+
+  // Determine empty state kind (if result has 0 data and not loading)
+  const emptyState = useMemo(() => {
+    if (isLoading || isError || !result || result.data.length > 0) {
+      return null
+    }
+
+    if (params.search) {
+      return (
+        <ListingEmptyState
+          type="search_empty"
+          domainLabel="empresas"
+          searchQuery={params.search}
+          onClearFilters={() => setParam('search', undefined)}
+        />
+      )
+    }
+
+    if (activeCount > 0) {
+      return (
+        <ListingEmptyState
+          type="filter_empty"
+          domainLabel="empresas"
+          activeFiltersCount={activeCount}
+          onClearFilters={() => clearParams(['sort'])}
+        />
+      )
+    }
+
     return (
-      <div className="rounded-xl border border-dashed border-slate-300 p-12 text-center text-slate-500" data-testid="empty-state">
-        <p className="text-base font-medium text-slate-700">Nenhuma empresa encontrada.</p>
-        <p className="mt-1 text-sm">Nenhuma empresa publicada no momento.</p>
-      </div>
+      <ListingEmptyState
+        type="domain_empty"
+        domainLabel="empresas e serviços"
+      />
     )
-  }
+  }, [isLoading, isError, result, params.search, activeCount, setParam, clearParams])
 
   return (
-    <div className="space-y-6" data-testid="business-list-page">
-      <div className="border-b border-slate-200 pb-4">
-        <h1 className="text-2xl font-bold text-slate-900">Empresas e Serviços</h1>
-        <p className="text-sm text-slate-600">
-          Comércio, serviços e profissionais em Bom Jesus da Lapa ({businesses.length} cadastrados)
-        </p>
-      </div>
-
-      <ul className="divide-y divide-slate-100 rounded-xl border border-slate-200 bg-white" data-testid="business-list">
-        {businesses.map((biz) => (
-          <li key={biz.id} className="p-4 hover:bg-slate-50 transition-colors">
-            <div className="flex items-start gap-4">
-              {biz.logo_url ? (
-                <img
-                  src={biz.logo_url}
-                  alt={biz.name}
-                  className="h-12 w-12 rounded-lg object-cover border border-slate-200 shrink-0"
-                />
-              ) : (
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-slate-400 font-semibold shrink-0">
-                  {biz.name.slice(0, 2).toUpperCase()}
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-base font-semibold text-slate-900 truncate">{biz.name}</h2>
-                  {biz.category && (
-                    <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600 shrink-0">
-                      {biz.category.name}
-                    </span>
-                  )}
-                </div>
-                {biz.description && (
-                  <p className="mt-1 text-sm text-slate-600 line-clamp-2">{biz.description}</p>
-                )}
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-                  {biz.address && <span>{biz.address}</span>}
-                  {biz.whatsapp && <span>WhatsApp: {biz.whatsapp}</span>}
-                  {biz.instagram && <span>Instagram: {biz.instagram}</span>}
-                </div>
-              </div>
+    <ListingLayout
+      title="Empresas e Serviços"
+      description="Comércio, profissionais liberais e serviços essenciais em Bom Jesus da Lapa."
+      seoTitle="Empresas e Serviços em Bom Jesus da Lapa — ConectaLapa"
+      breadcrumbs={[
+        { label: 'Início', to: '/' },
+        { label: 'Empresas e Serviços' },
+      ]}
+      totalCount={result?.count}
+      isLoading={isLoading}
+      isError={isError}
+      errorMessage={error?.message}
+      onRetry={() => refetch()}
+      filterBar={
+        <FilterBar
+          activeCount={activeCount}
+          onClearAll={() => clearParams(['sort'])}
+          totalResults={result?.count}
+          domainTitle="Empresas"
+        >
+          {/* Search input */}
+          <div>
+            <label htmlFor="biz-search" className="block text-xs font-semibold text-text-primary mb-1">
+              Buscar por nome
+            </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" aria-hidden="true" />
+              <Input
+                id="biz-search"
+                type="search"
+                placeholder="Ex: farmácia, oficina..."
+                value={params.search || ''}
+                onChange={(e) => setParam('search', e.target.value || undefined)}
+                className="pl-9 text-xs"
+              />
             </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+          </div>
+
+          {/* Category filter */}
+          <div>
+            <label htmlFor="biz-category" className="block text-xs font-semibold text-text-primary mb-1">
+              Categoria
+            </label>
+            <Select
+              id="biz-category"
+              value={params.category || ''}
+              onChange={(e) => setParam('category', e.target.value || undefined)}
+              options={[
+                { value: '', label: 'Todas as categorias' },
+                ...(meta?.categories || []).map((c) => ({ value: c.slug, label: c.name })),
+              ]}
+              className="text-xs"
+            />
+          </div>
+
+          {/* Neighborhood filter */}
+          <div>
+            <label htmlFor="biz-neighborhood" className="block text-xs font-semibold text-text-primary mb-1">
+              Bairro / Região
+            </label>
+            <Select
+              id="biz-neighborhood"
+              value={params.neighborhood || ''}
+              onChange={(e) => setParam('neighborhood', e.target.value || undefined)}
+              options={[
+                { value: '', label: 'Todos os bairros' },
+                ...(meta?.neighborhoods || []).map((n) => ({ value: n, label: n })),
+              ]}
+              className="text-xs"
+            />
+          </div>
+
+          {/* Amenities and Open Now */}
+          <div className="space-y-2">
+            <div>
+              <label htmlFor="biz-amenity" className="block text-xs font-semibold text-text-primary mb-1">
+                Comodidades
+              </label>
+              <Select
+                id="biz-amenity"
+                value={params.amenity || ''}
+                onChange={(e) => setParam('amenity', e.target.value || undefined)}
+                options={[
+                  { value: '', label: 'Todas as comodidades' },
+                  ...(meta?.amenities || []).map((a) => ({ value: a.slug, label: a.name })),
+                ]}
+                className="text-xs"
+              />
+            </div>
+
+            <label className="flex items-center gap-2 cursor-pointer pt-1">
+              <input
+                type="checkbox"
+                checked={Boolean(params.openNow)}
+                onChange={(e) => setParam('openNow', e.target.checked ? true : false)}
+                className="w-4 h-4 rounded border-border-hairline text-accent focus:ring-accent"
+              />
+              <span className="text-xs font-medium text-text-primary select-none">
+                Aberto agora
+              </span>
+            </label>
+          </div>
+        </FilterBar>
+      }
+      filterChips={
+        <FilterChips
+          chips={chips}
+          onClearAll={() => clearParams(['sort'])}
+        />
+      }
+      sortSelect={
+        <SortSelect
+          value={params.sort || 'name_asc'}
+          onChange={(val) => setParam('sort', val as BusinessParams['sort'])}
+          options={SORT_OPTIONS}
+        />
+      }
+      emptyState={emptyState}
+      pagination={
+        result && result.totalPages > 1 ? (
+          <Pagination
+            currentPage={result.page}
+            totalPages={result.totalPages}
+            totalCount={result.count}
+            pageSize={result.pageSize}
+            onPageChange={(p) => setParams({ page: p }, { resetPage: false })}
+          />
+        ) : null
+      }
+    >
+      <ResultsGrid columns={3}>
+        {isLoading
+          ? Array.from({ length: 6 }).map((_, idx) => (
+              <BusinessCardSkeleton key={`biz-skel-${idx}`} />
+            ))
+          : (result?.data || []).map((biz) => (
+              <BusinessCard key={biz.id} business={biz} />
+            ))}
+      </ResultsGrid>
+    </ListingLayout>
   )
 }

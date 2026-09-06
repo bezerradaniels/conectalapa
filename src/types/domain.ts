@@ -109,3 +109,12 @@ export interface AppError {
   code?: string
   original?: unknown
 }
+
+// Paginated response wrapper
+export interface PaginatedResult<T> {
+  data: T[]
+  count: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
