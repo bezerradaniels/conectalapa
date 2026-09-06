@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { toAppError } from '@/lib/errors'
-import type { Package, PackageWithRelations, Amenity, Business, PaginatedResult, Category } from '@/types'
+import type { Package, PackageWithRelations, Amenity, Business, PaginatedResult, Category, ContentStatus } from '@/types'
+import { createEntityWithRelations, updateEntityWithRelations, deleteEntityWithCleanup, duplicateEntity } from '@/lib/admin-crud'
 
 export type PackageSortOption = 'soonest' | 'price_asc' | 'price_desc'
 
@@ -264,4 +265,140 @@ export async function fetchPackageFilterMeta(): Promise<{
   } catch (err) {
     throw toAppError(err)
   }
+}
+
+export async function fetchPackageAmenities(): Promise<Amenity[]> {
+  const { data, error } = await supabase
+    .from('amenities')
+    .select('*')
+    .or('domain.is.null,domain.eq.package')
+    .order('name', { ascending: true })
+
+  if (error) throw toAppError(error)
+  return (data || []) as Amenity[]
+}
+
+// ---------------------------------------------------------------------------
+// Admin (authenticated, all statuses)
+// ---------------------------------------------------------------------------
+
+export type AdminSortField = 'destination' | 'departure_date' | 'created_at' | 'updated_at'
+
+export interface AdminPackageFilters {
+  search?: string
+  status?: ContentStatus | 'all'
+  sortField?: AdminSortField
+  sortDir?: 'asc' | 'desc'
+  page?: number
+  pageSize?: number
+}
+
+export async function fetchPackagesAdminPaginated(filters: AdminPackageFilters = {}): Promise<PaginatedResult<Package>> {
+  try {
+    const page = Math.max(1, filters.page || 1)
+    const pageSize = Math.max(1, filters.pageSize || 20)
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+
+    let query = supabase.from('packages').select(PACKAGE_LIST_COLUMNS, { count: 'exact' })
+    if (filters.status && filters.status !== 'all') query = query.eq('status', filters.status)
+    if (filters.search) query = query.ilike('destination', `%${filters.search}%`)
+    query = query.order(filters.sortField || 'destination', { ascending: filters.sortDir !== 'desc' })
+    query = query.range(from, to)
+
+    const { data, count, error } = await query
+    if (error) throw toAppError(error)
+
+    const items = (data || []) as unknown as Package[]
+    const totalCount = count ?? items.length
+    return { data: items, count: totalCount, page, pageSize, totalPages: Math.ceil(totalCount / pageSize) || 1 }
+  } catch (err) {
+    throw toAppError(err)
+  }
+}
+
+export async function fetchPackageAdminById(id: string): Promise<PackageWithRelations> {
+  try {
+    const { data, error } = await supabase
+      .from('packages')
+      .select(`*, category:categories (*), agency:businesses (*), package_amenities (amenity:amenities (*))`)
+      .eq('id', id)
+      .single()
+
+    if (error) throw toAppError(error)
+
+    const amenities: Amenity[] = (data.package_amenities || [])
+      .map((item: { amenity: Amenity | null }) => item.amenity)
+      .filter((a): a is Amenity => a !== null)
+
+    const agency: Business | null = data.agency
+      ? ({
+          ...data.agency,
+          opening_hours: Array.isArray(data.agency.opening_hours) ? data.agency.opening_hours : [],
+          additional_links: Array.isArray(data.agency.additional_links) ? data.agency.additional_links : [],
+        } as unknown as Business)
+      : null
+
+    return { ...data, agency, amenities } as unknown as PackageWithRelations
+  } catch (err) {
+    throw toAppError(err)
+  }
+}
+
+export interface PackageAdminInput {
+  id?: string
+  destination: string
+  slug: string
+  category_id: string | null
+  departure_location: string
+  departure_date: string
+  return_date: string
+  agency_id: string | null
+  agency_name: string | null
+  agency_whatsapp: string | null
+  information: string | null
+  price: number | null
+  image_url: string | null
+  status: ContentStatus
+  amenityIds: string[]
+}
+
+function toPackageScalar(input: PackageAdminInput) {
+  return {
+    ...(input.id ? { id: input.id } : {}),
+    destination: input.destination,
+    slug: input.slug,
+    category_id: input.category_id,
+    departure_location: input.departure_location,
+    departure_date: input.departure_date,
+    return_date: input.return_date,
+    agency_id: input.agency_id,
+    agency_name: input.agency_name,
+    agency_whatsapp: input.agency_whatsapp,
+    information: input.information,
+    price: input.price,
+    image_url: input.image_url,
+    status: input.status,
+  }
+}
+
+export async function createPackageAdmin(input: PackageAdminInput) {
+  return createEntityWithRelations('packages', toPackageScalar(input), {
+    amenities: { joinTable: 'package_amenities', entityColumn: 'package_id', amenityIds: input.amenityIds },
+  })
+}
+
+export async function updatePackageAdmin(id: string, input: PackageAdminInput) {
+  return updateEntityWithRelations('packages', id, toPackageScalar(input), {
+    amenities: { joinTable: 'package_amenities', entityColumn: 'package_id', amenityIds: input.amenityIds },
+  })
+}
+
+export async function deletePackageAdmin(id: string): Promise<void> {
+  const { data } = await supabase.from('packages').select('image_url').eq('id', id).single()
+  await deleteEntityWithCleanup('packages', id, [(data as { image_url?: string | null } | null)?.image_url])
+}
+
+export async function duplicatePackageAdmin(id: string) {
+  return duplicateEntity('packages', id, 'destination', { image_url: null }, { joinTable: 'package_amenities', entityColumn: 'package_id' })
 }
