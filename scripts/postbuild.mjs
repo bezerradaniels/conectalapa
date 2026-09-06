@@ -30,11 +30,17 @@ const ROOT = path.resolve(__dirname, '..')
 const DIST = path.join(ROOT, 'dist')
 const SITE_URL = 'https://conectalapa.com.br'
 
+try {
+  process.loadEnvFile?.(path.join(ROOT, '.env'))
+} catch {
+  // .env file is optional; on hosting platforms like Hostinger env vars are injected directly into process.env
+}
+
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('[postbuild] Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY — skipping sitemap and prerender.')
+  console.warn('[postbuild] Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY — skipping sitemap and prerender.')
   process.exit(0)
 }
 
