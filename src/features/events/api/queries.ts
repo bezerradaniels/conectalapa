@@ -1,13 +1,26 @@
 import { supabase } from '@/lib/supabase'
 import { toAppError } from '@/lib/errors'
-import type { Event, EventWithRelations, Amenity, GalleryItem } from '@/types'
+import type { Event, EventWithRelations, Amenity, GalleryItem, PaginatedResult, Category } from '@/types'
+
+export type EventSortOption = 'soonest' | 'created_desc'
+export type EventDatePreset = 'hoje' | 'fim_de_semana' | 'este_mes' | 'todos'
+export type EventPriceType = 'all' | 'free' | 'paid'
 
 export interface EventFilters extends Record<string, unknown> {
   category?: string
+  datePreset?: EventDatePreset
+  priceType?: EventPriceType
+  maxPrice?: number
+  neighborhood?: string
+  amenity?: string
+  includePast?: boolean
   search?: string
+  sort?: EventSortOption
+  page?: number
+  pageSize?: number
+  limit?: number
   upcomingOnly?: boolean
   excludeEnded?: boolean
-  limit?: number
 }
 
 const EVENT_LIST_COLUMNS = `
@@ -44,42 +57,122 @@ const EVENT_LIST_COLUMNS = `
 `
 
 export async function fetchEvents(filters: EventFilters = {}): Promise<Event[]> {
+  const result = await fetchEventsPaginated({ ...filters, pageSize: filters.limit || 50 })
+  return result.data
+}
+
+export async function fetchEventsPaginated(filters: EventFilters = {}): Promise<PaginatedResult<Event>> {
   try {
+    const page = Math.max(1, Number(filters.page) || 1)
+    const pageSize = Math.max(1, Number(filters.pageSize) || 12)
+    const from = (page - 1) * pageSize
+    const to = from + pageSize - 1
+
+    let selectClause = EVENT_LIST_COLUMNS
+    if (filters.amenity) {
+      selectClause += `, event_amenities!inner(amenity:amenities!inner(slug))`
+    }
+    if (filters.category) {
+      selectClause = selectClause.replace('category:categories (', 'category:categories!inner (')
+    }
+
     let query = supabase
       .from('events')
-      .select(EVENT_LIST_COLUMNS)
+      .select(selectClause, { count: 'exact' })
       .eq('status', 'published')
-      .order('start_datetime', { ascending: true })
 
+    // Filter by category
     if (filters.category) {
-      query = query.eq('categories.slug', filters.category)
+      query = query.eq('category.slug', filters.category)
     }
 
-    if (filters.excludeEnded) {
-      const nowIso = new Date().toISOString()
+    // Filter by amenity
+    if (filters.amenity) {
+      query = query.eq('event_amenities.amenity.slug', filters.amenity)
+    }
+
+    // Filter by neighborhood or venue
+    if (filters.neighborhood) {
+      query = query.or(`address.ilike.%${filters.neighborhood}%,venue_name.ilike.%${filters.neighborhood}%`)
+    }
+
+    // Past / Upcoming handling: Default to hiding finished events unless includePast is true
+    const nowIso = new Date().toISOString()
+    if (!filters.includePast && !filters.search) {
       query = query.or(`end_datetime.gte.${nowIso},and(end_datetime.is.null,start_datetime.gte.${nowIso})`)
-    } else if (filters.upcomingOnly) {
-      query = query.gte('start_datetime', new Date().toISOString())
     }
 
+    // Date presets
+    if (filters.datePreset && filters.datePreset !== 'todos') {
+      const today = new Date()
+      const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString()
+      const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999).toISOString()
+
+      if (filters.datePreset === 'hoje') {
+        query = query.gte('start_datetime', startOfToday).lte('start_datetime', endOfToday)
+      } else if (filters.datePreset === 'fim_de_semana') {
+        // Calculate upcoming weekend (Friday evening to Sunday night)
+        const dayOfWeek = today.getDay()
+        const daysUntilFriday = (5 - dayOfWeek + 7) % 7
+        const friday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysUntilFriday, 18, 0, 0)
+        const sunday = new Date(friday.getFullYear(), friday.getMonth(), friday.getDate() + 2, 23, 59, 59, 999)
+        query = query.gte('start_datetime', friday.toISOString()).lte('start_datetime', sunday.toISOString())
+      } else if (filters.datePreset === 'este_mes') {
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString()
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999).toISOString()
+        query = query.gte('start_datetime', startOfMonth).lte('start_datetime', endOfMonth)
+      }
+    }
+
+    // Free vs Paid filter
+    if (filters.priceType === 'free') {
+      query = query.or('ticket_price.is.null,ticket_price.eq.0,ticket_price_description.ilike.%gratuit%,ticket_price_description.ilike.%franca%')
+    } else if (filters.priceType === 'paid') {
+      query = query.gt('ticket_price', 0)
+    }
+
+    // Max price ceiling
+    if (filters.maxPrice !== undefined && filters.maxPrice > 0) {
+      query = query.lte('ticket_price', filters.maxPrice)
+    }
+
+    // Search
     if (filters.search) {
-      query = query.ilike('name', `%${filters.search}%`)
+      query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%,venue_name.ilike.%${filters.search}%`)
     }
 
-    if (filters.limit) {
-      query = query.limit(filters.limit)
+    // Sorting
+    if (filters.sort === 'created_desc') {
+      query = query.order('created_at', { ascending: false })
+    } else {
+      // Default: soonest first
+      query = query.order('start_datetime', { ascending: true })
     }
 
-    const { data, error } = await query
+    // Pagination
+    query = query.range(from, to)
+
+    const { data, count, error } = await query
 
     if (error) {
       throw toAppError(error)
     }
 
-    return (data || []).map((row) => ({
+    const items = ((data || []) as unknown as Record<string, unknown>[]).map((row) => ({
       ...row,
       links: Array.isArray(row.links) ? row.links : [],
     })) as unknown as Event[]
+
+    const totalCount = count ?? items.length
+    const totalPages = Math.ceil(totalCount / pageSize) || 1
+
+    return {
+      data: items,
+      count: totalCount,
+      page,
+      pageSize,
+      totalPages,
+    }
   } catch (err) {
     throw toAppError(err)
   }
@@ -117,6 +210,46 @@ export async function fetchEventBySlug(slug: string): Promise<EventWithRelations
       amenities,
       gallery,
     } as unknown as EventWithRelations
+  } catch (err) {
+    throw toAppError(err)
+  }
+}
+
+export async function fetchEventFilterMeta(): Promise<{
+  categories: Category[]
+  amenities: Amenity[]
+  neighborhoods: string[]
+}> {
+  try {
+    const [catRes, amRes] = await Promise.all([
+      supabase
+        .from('categories')
+        .select('*')
+        .eq('domain', 'event')
+        .order('name', { ascending: true }),
+      supabase
+        .from('amenities')
+        .select('*')
+        .or('domain.is.null,domain.eq.event')
+        .order('name', { ascending: true }),
+    ])
+
+    if (catRes.error) throw toAppError(catRes.error)
+    if (amRes.error) throw toAppError(amRes.error)
+
+    const neighborhoods = [
+      'Centro',
+      'Santuário',
+      'Maravilha',
+      'Amaralina',
+      'Parque Verde',
+    ]
+
+    return {
+      categories: (catRes.data || []) as Category[],
+      amenities: (amRes.data || []) as Amenity[],
+      neighborhoods,
+    }
   } catch (err) {
     throw toAppError(err)
   }
