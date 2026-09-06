@@ -238,7 +238,7 @@ export default function EventListPage() {
     }
 
     return groups
-  }, [result?.data])
+  }, [result])
 
   return (
     <ListingLayout

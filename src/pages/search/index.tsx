@@ -37,12 +37,14 @@ export default function SearchPage() {
 
   const urlQuery = searchParams.get('q') || ''
   const [inputVal, setInputVal] = useState(urlQuery)
+  const [prevUrlQuery, setPrevUrlQuery] = useState(urlQuery)
   const [selectedDomain, setSelectedDomain] = useState<SearchDomain | 'all'>('all')
 
-  // Keep inputVal in sync if URL changes (e.g. back/forward button)
-  useEffect(() => {
+  // Sync inputVal when urlQuery changes externally (e.g. back/forward navigation)
+  if (urlQuery !== prevUrlQuery) {
+    setPrevUrlQuery(urlQuery)
     setInputVal(urlQuery)
-  }, [urlQuery])
+  }
 
   // Debounced query for live typing
   const debouncedQuery = useDebouncedValue(inputVal, 300)
@@ -169,7 +171,6 @@ export default function SearchPage() {
             placeholder="Ex: pousada, almoço, oficina, romaria, porto seguro..."
             className="pl-10 pr-24 py-2.5 text-sm rounded-xl border-border-hairline shadow-xs focus:ring-accent"
             aria-label="Termo de busca"
-            autoFocus
           />
           {inputVal && (
             <button
