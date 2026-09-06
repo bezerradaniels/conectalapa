@@ -1,24 +1,16 @@
 import { Link } from 'react-router-dom'
 import { MapPin, Bed } from 'lucide-react'
 import type { Lodging, GalleryItem } from '@/types'
-import { extractNeighborhood } from '@/lib/format'
+import { extractNeighborhood, getLodgingTypeLabel } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 
 export interface LodgingCardProps {
   lodging: Lodging & { galleries?: GalleryItem[] }
 }
 
-const LODGING_TYPE_LABELS: Record<string, string> = {
-  hotel: 'Hotel',
-  pousada: 'Pousada',
-  guesthouse: 'Hospedaria',
-  resort: 'Resort',
-  other: 'Hospedagem',
-}
-
 export function LodgingCard({ lodging }: LodgingCardProps) {
   const neighborhood = extractNeighborhood(lodging.address)
-  const typeLabel = LODGING_TYPE_LABELS[lodging.lodging_type] || lodging.category?.name || 'Hospedagem'
+  const typeLabel = getLodgingTypeLabel(lodging.lodging_type, lodging.category?.name)
 
   // Pick first gallery image if present
   const firstImage = lodging.galleries && lodging.galleries.length > 0

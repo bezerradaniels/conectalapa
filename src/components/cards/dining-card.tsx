@@ -1,30 +1,17 @@
 import { Link } from 'react-router-dom'
 import { MapPin, UtensilsCrossed, Clock } from 'lucide-react'
 import type { Dining, GalleryItem } from '@/types'
-import { extractNeighborhood, getOpenStatus } from '@/lib/format'
+import { extractNeighborhood, getOpenStatus, getRestaurantTypeLabel } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 
 export interface DiningCardProps {
   dining: Dining & { galleries?: GalleryItem[] }
 }
 
-const RESTAURANT_TYPE_LABELS: Record<string, string> = {
-  churrascaria: 'Churrascaria',
-  peixaria: 'Peixaria',
-  pizzeria: 'Pizzaria',
-  lanchonete: 'Lanchonete',
-  cafeteria: 'Café & Doceria',
-  bar: 'Bar & Petiscaria',
-  restaurante: 'Restaurante',
-}
-
 export function DiningCard({ dining }: DiningCardProps) {
   const neighborhood = extractNeighborhood(dining.address)
   const openStatus = getOpenStatus(dining.opening_hours)
-  const typeLabel =
-    RESTAURANT_TYPE_LABELS[dining.restaurant_type.toLowerCase()] ||
-    dining.category?.name ||
-    dining.restaurant_type
+  const typeLabel = getRestaurantTypeLabel(dining.restaurant_type, dining.category?.name)
 
   // Pick first gallery image if present
   const firstImage =

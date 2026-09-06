@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { MapPin, Ticket, Calendar, Sparkles } from 'lucide-react'
 import type { Event } from '@/types'
-import { getEventDateBadge, formatEventDateRange, formatCurrency, extractNeighborhood } from '@/lib/format'
+import { getEventDateBadge, formatEventDateRange, getEventPriceDisplay, extractNeighborhood } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
 
 export interface EventCardProps {
@@ -12,25 +12,9 @@ export interface EventCardProps {
 export function EventCard({ event, showImage = true }: EventCardProps) {
   const { day, month } = getEventDateBadge(event.start_datetime)
 
-  // Price calculation according to Phase 5 spec:
   // "If the price is unannounced, say so; do not render it as free."
-  let priceDisplay: string
-  let isFree = false
-
-  if (event.ticket_price_description) {
-    priceDisplay = event.ticket_price_description
-    isFree = priceDisplay.toLowerCase().includes('gratuit') || priceDisplay.toLowerCase().includes('franca')
-  } else if (event.ticket_price !== null && event.ticket_price !== undefined) {
-    if (event.ticket_price === 0) {
-      priceDisplay = 'Gratuito'
-      isFree = true
-    } else {
-      priceDisplay = formatCurrency(event.ticket_price)
-    }
-  } else {
-    // ticket_price is null and no description provided -> Unannounced!
-    priceDisplay = 'Preço a confirmar'
-  }
+  const { label: priceDisplay, kind: priceKind } = getEventPriceDisplay(event)
+  const isFree = priceKind === 'free'
 
   // Determine event timing state (upcoming, happening now, ended)
   const now = new Date().getTime()
@@ -103,7 +87,7 @@ export function EventCard({ event, showImage = true }: EventCardProps) {
             )}
 
             <Badge
-              variant={isFree ? 'success' : priceDisplay === 'Preço a confirmar' ? 'neutral' : 'accent'}
+              variant={isFree ? 'success' : priceKind === 'unannounced' ? 'neutral' : 'accent'}
               size="sm"
               className="font-medium text-2xs"
             >

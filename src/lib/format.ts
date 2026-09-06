@@ -149,3 +149,58 @@ export function calculateDurationDays(departureDate: string, returnDate?: string
   return diffDays > 0 ? diffDays : 1
 }
 
+export interface EventPriceDisplay {
+  label: string
+  kind: 'free' | 'paid' | 'unannounced'
+}
+
+/**
+ * Resolves event pricing into a display label plus a kind flag, so an
+ * unannounced price is never confused with a free one.
+ */
+export function getEventPriceDisplay(event: {
+  ticket_price?: number | null
+  ticket_price_description?: string | null
+}): EventPriceDisplay {
+  if (event.ticket_price_description) {
+    const label = event.ticket_price_description
+    const isFree = /gratuit|franca/i.test(label)
+    return { label, kind: isFree ? 'free' : 'paid' }
+  }
+
+  if (event.ticket_price !== null && event.ticket_price !== undefined) {
+    if (event.ticket_price === 0) {
+      return { label: 'Gratuito', kind: 'free' }
+    }
+    return { label: formatCurrency(event.ticket_price), kind: 'paid' }
+  }
+
+  return { label: 'Preço a confirmar', kind: 'unannounced' }
+}
+
+const LODGING_TYPE_LABELS: Record<string, string> = {
+  hotel: 'Hotel',
+  pousada: 'Pousada',
+  guesthouse: 'Hospedaria',
+  resort: 'Resort',
+  other: 'Hospedagem',
+}
+
+export function getLodgingTypeLabel(lodgingType: string, categoryName?: string | null): string {
+  return LODGING_TYPE_LABELS[lodgingType] || categoryName || 'Hospedagem'
+}
+
+const RESTAURANT_TYPE_LABELS: Record<string, string> = {
+  churrascaria: 'Churrascaria',
+  peixaria: 'Peixaria',
+  pizzeria: 'Pizzaria',
+  lanchonete: 'Lanchonete',
+  cafeteria: 'Café & Doceria',
+  bar: 'Bar & Petiscaria',
+  restaurante: 'Restaurante',
+}
+
+export function getRestaurantTypeLabel(restaurantType: string, categoryName?: string | null): string {
+  return RESTAURANT_TYPE_LABELS[restaurantType.toLowerCase()] || categoryName || restaurantType
+}
+
