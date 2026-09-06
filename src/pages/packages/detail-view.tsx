@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Breadcrumbs } from '@/components/layout/breadcrumbs'
 import { Badge } from '@/components/ui/badge'
 import { PackageCard } from '@/components/cards/package-card'
+import { optimizeImageUrl } from '@/lib/image-url'
 import { ContactActions, AmenityList, DetailSection, RelatedSection } from '@/components/detail'
 
 export interface PackageDetailViewProps {
@@ -59,7 +60,13 @@ export function PackageDetailView({ pkg, related }: PackageDetailViewProps) {
 
       {pkg.image_url && (
         <div className="w-full aspect-16/9 overflow-hidden rounded-2xl bg-bg-subtle border border-border-hairline">
-          <img src={pkg.image_url} alt={`Pacote para ${pkg.destination}`} className="w-full h-full object-cover" />
+          <img
+            src={optimizeImageUrl(pkg.image_url, 700) || undefined}
+            alt={`Pacote para ${pkg.destination}`}
+            fetchPriority="high"
+            decoding="async"
+            className="w-full h-full object-cover"
+          />
         </div>
       )}
 

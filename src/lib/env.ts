@@ -1,25 +1,37 @@
-import { z } from 'zod'
-
-const envSchema = z.object({
-  VITE_SUPABASE_URL: z.string().url(),
-  VITE_SUPABASE_ANON_KEY: z.string().min(1),
-})
-
+/**
+ * Hand-rolled rather than zod-validated on purpose: this file is a
+ * dependency of the Supabase client, which every single route imports, so
+ * whatever this file pulls in ends up in the app's global bundle rather
+ * than a route-level chunk. zod is only actually needed by admin/submit
+ * forms — validating two env strings didn't justify shipping it (22KB
+ * gzip) to every visitor on every page. See docs/09-POLISH-LAUNCH.md.
+ */
 function loadEnv() {
-  const result = envSchema.safeParse(import.meta.env)
+  const url = import.meta.env.VITE_SUPABASE_URL
+  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-  if (!result.success) {
-    const missing = result.error.issues
-      .map((issue) => issue.path.join('.'))
-      .join(', ')
+  const missing: string[] = []
+  if (!url || !isValidUrl(url)) missing.push('VITE_SUPABASE_URL')
+  if (!anonKey || typeof anonKey !== 'string') missing.push('VITE_SUPABASE_ANON_KEY')
 
+  if (missing.length > 0) {
     throw new Error(
-      `Missing or invalid environment variable(s): ${missing}. ` +
+      `Missing or invalid environment variable(s): ${missing.join(', ')}. ` +
         `Copy .env.example to .env and fill in the values.`,
     )
   }
 
-  return result.data
+  return { VITE_SUPABASE_URL: url as string, VITE_SUPABASE_ANON_KEY: anonKey as string }
+}
+
+function isValidUrl(value: unknown): boolean {
+  if (typeof value !== 'string') return false
+  try {
+    new URL(value)
+    return true
+  } catch {
+    return false
+  }
 }
 
 export const env = loadEnv()

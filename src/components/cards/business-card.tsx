@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { MapPin, Clock } from 'lucide-react'
 import type { Business } from '@/types'
 import { extractNeighborhood, getOpenStatus } from '@/lib/format'
+import { optimizeImageUrl } from '@/lib/image-url'
 import { Badge } from '@/components/ui/badge'
 
 export interface BusinessCardProps {
@@ -16,14 +17,14 @@ export function BusinessCard({ business }: BusinessCardProps) {
     <Link
       to={`/empresas/${business.slug}`}
       className="group flex flex-col justify-between p-4 rounded-xl border border-border-hairline bg-bg-surface hover:border-border-subtle hover:shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-accent"
-      aria-label={`Ver detalhes de ${business.name}`}
     >
+      <span className="sr-only">Ver detalhes de </span>
       <div>
         <div className="flex items-start gap-3.5">
           {/* Logo or monogram fallback */}
           {business.logo_url ? (
             <img
-              src={business.logo_url}
+              src={optimizeImageUrl(business.logo_url, 112) || undefined}
               alt=""
               loading="lazy"
               decoding="async"

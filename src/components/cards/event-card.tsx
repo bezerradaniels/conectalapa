@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { MapPin, Ticket, Calendar, Sparkles } from 'lucide-react'
 import type { Event } from '@/types'
 import { getEventDateBadge, formatEventDateRange, getEventPriceDisplay, extractNeighborhood } from '@/lib/format'
+import { optimizeImageUrl } from '@/lib/image-url'
 import { Badge } from '@/components/ui/badge'
 
 export interface EventCardProps {
@@ -37,13 +38,13 @@ export function EventCard({ event, showImage = true }: EventCardProps) {
     <Link
       to={`/eventos/${event.slug}`}
       className="group flex flex-col sm:flex-row items-stretch gap-4 p-4 rounded-xl border border-border-hairline bg-bg-surface hover:border-border-subtle hover:shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-accent"
-      aria-label={`Ver detalhes do evento ${event.name}`}
     >
+      <span className="sr-only">Ver detalhes do evento </span>
       {/* Optional promotional image or date visual anchor */}
       {showImage && event.promotional_image_url ? (
         <div className={`relative w-full sm:w-32 shrink-0 ${aspectClass} overflow-hidden rounded-lg bg-bg-subtle border border-border-hairline`}>
           <img
-            src={event.promotional_image_url}
+            src={optimizeImageUrl(event.promotional_image_url, 400) || undefined}
             alt=""
             loading="lazy"
             decoding="async"
@@ -70,8 +71,8 @@ export function EventCard({ event, showImage = true }: EventCardProps) {
         <div>
           <div className="flex items-center gap-1.5 flex-wrap">
             {isHappeningNow ? (
-              <Badge variant="success" size="sm" className="font-semibold text-2xs animate-pulse">
-                <Sparkles className="w-2.5 h-2.5 mr-1" aria-hidden="true" />
+              <Badge variant="success" size="sm" className="font-semibold text-2xs">
+                <Sparkles className="w-2.5 h-2.5 mr-1 animate-pulse" aria-hidden="true" />
                 Acontecendo agora
               </Badge>
             ) : isPast ? (

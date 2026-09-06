@@ -1,5 +1,7 @@
 import { lazy } from 'react'
 
+export const HomePage = lazy(() => import('@/pages/home'))
+
 export const BusinessListPage = lazy(() => import('@/pages/businesses'))
 export const BusinessDetailPage = lazy(
   () => import('@/pages/businesses/detail'),
@@ -18,6 +20,15 @@ export const AboutPage = lazy(() => import('@/pages/about'))
 export const NotFoundPage = lazy(() => import('@/pages/not-found'))
 
 // Admin
+// AdminShell and ProtectedRoute are lazy too, not just the pages inside
+// them — ProtectedRoute pulls in SessionExpiredModal, which pulls in
+// react-hook-form + zod for its re-auth form. Both were previously
+// imported statically at the top of router.tsx, which is itself part of
+// the app's eager entry chain, so that entire forms bundle (~37KB gzip)
+// was being fetched on every single public page load, home included.
+export const AdminShell = lazy(() => import('@/components/admin/admin-shell').then((m) => ({ default: m.AdminShell })))
+export const ProtectedRoute = lazy(() => import('@/components/admin/protected-route').then((m) => ({ default: m.ProtectedRoute })))
+
 export const AdminLoginPage = lazy(() => import('@/pages/admin/login'))
 export const AdminDashboardPage = lazy(() => import('@/pages/admin'))
 

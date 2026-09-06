@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { MapPin, UtensilsCrossed, Clock } from 'lucide-react'
 import type { Dining, GalleryItem } from '@/types'
 import { extractNeighborhood, getOpenStatus, getRestaurantTypeLabel } from '@/lib/format'
+import { optimizeImageUrl } from '@/lib/image-url'
 import { Badge } from '@/components/ui/badge'
 
 export interface DiningCardProps {
@@ -23,12 +24,12 @@ export function DiningCard({ dining }: DiningCardProps) {
     <Link
       to={`/gastronomia/${dining.slug}`}
       className="group flex flex-col rounded-xl border border-border-hairline bg-bg-surface overflow-hidden hover:border-border-subtle hover:shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-accent"
-      aria-label={`Ver detalhes de ${dining.name}`}
     >
+      <span className="sr-only">Ver detalhes de </span>
       {firstImage ? (
         <div className="relative aspect-16/9 w-full bg-bg-subtle overflow-hidden">
           <img
-            src={firstImage}
+            src={optimizeImageUrl(firstImage, 700) || undefined}
             alt=""
             loading="lazy"
             decoding="async"

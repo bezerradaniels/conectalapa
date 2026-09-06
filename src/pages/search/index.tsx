@@ -19,6 +19,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { ListingEmptyState } from '@/components/listing'
 import { useCrossDomainSearch, useDebouncedValue } from '@/features/search/api/hooks'
 import type { SearchDomain, SearchResultItem } from '@/features/search/api/queries'
+import { optimizeImageUrl } from '@/lib/image-url'
 
 const DOMAIN_CONFIG: Record<
   SearchDomain,
@@ -87,11 +88,11 @@ export default function SearchPage() {
         key={`${item.domain}-${item.id}`}
         to={item.detail_path}
         className="group flex flex-col sm:flex-row items-start gap-4 p-4 rounded-xl border border-border-hairline bg-bg-surface hover:border-border-subtle hover:shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-accent"
-        aria-label={`Ver detalhes de ${item.name}`}
       >
+        <span className="sr-only">Ver detalhes de </span>
         {item.image_url ? (
           <img
-            src={item.image_url}
+            src={optimizeImageUrl(item.image_url, 144) || undefined}
             alt=""
             loading="lazy"
             decoding="async"

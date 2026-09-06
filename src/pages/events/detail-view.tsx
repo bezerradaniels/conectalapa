@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { Breadcrumbs } from '@/components/layout/breadcrumbs'
 import { Badge } from '@/components/ui/badge'
 import { EventCard } from '@/components/cards/event-card'
+import { optimizeImageUrl } from '@/lib/image-url'
 import {
   ContactActions,
   Gallery,
@@ -82,7 +83,14 @@ export function EventDetailView({ event, related }: EventDetailViewProps) {
             'aspect-16/9'
           }`}
         >
-          <img src={event.promotional_image_url} alt={event.name} className="w-full h-full object-cover" />
+          <img
+            src={optimizeImageUrl(event.promotional_image_url, 700) || undefined}
+            alt={event.name}
+            // Likely the LCP element on this page — never lazy-load it.
+            fetchPriority="high"
+            decoding="async"
+            className="w-full h-full object-cover"
+          />
         </div>
       )}
 

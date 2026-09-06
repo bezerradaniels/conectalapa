@@ -4,6 +4,7 @@ import { Head } from '@/components/seo/head'
 import { PageHeader } from '@/components/layout/page-header'
 import { Breadcrumbs } from '@/components/layout/breadcrumbs'
 import { BusinessCard } from '@/components/cards/business-card'
+import { optimizeImageUrl } from '@/lib/image-url'
 import {
   ContactActions,
   Gallery,
@@ -50,7 +51,7 @@ export function BusinessDetailView({ business, related }: BusinessDetailViewProp
           <span className="flex items-center gap-3">
             {business.logo_url ? (
               <img
-                src={business.logo_url}
+                src={optimizeImageUrl(business.logo_url, 96) || undefined}
                 alt=""
                 width={48}
                 height={48}

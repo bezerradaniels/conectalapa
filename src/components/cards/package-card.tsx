@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Calendar, Building2, Palmtree, Clock } from 'lucide-react'
 import type { Package } from '@/types'
 import { formatDepartureDate, formatCurrency, calculateDurationDays } from '@/lib/format'
+import { optimizeImageUrl } from '@/lib/image-url'
 
 export interface PackageCardProps {
   pkg: Package
@@ -16,12 +17,12 @@ export function PackageCard({ pkg }: PackageCardProps) {
     <Link
       to={`/pacotes/${pkg.slug}`}
       className="group flex flex-col rounded-xl border border-border-hairline bg-bg-surface overflow-hidden hover:border-border-subtle hover:shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-accent"
-      aria-label={`Ver detalhes do pacote para ${pkg.destination}`}
     >
+      <span className="sr-only">Ver detalhes do pacote para </span>
       {pkg.image_url ? (
         <div className="relative aspect-16/9 w-full bg-bg-subtle overflow-hidden">
           <img
-            src={pkg.image_url}
+            src={optimizeImageUrl(pkg.image_url, 700) || undefined}
             alt=""
             loading="lazy"
             decoding="async"

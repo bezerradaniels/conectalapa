@@ -2,10 +2,10 @@ import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from '@/app/root-layout'
 import { RouteError } from '@/app/route-error'
 import { AppShell } from '@/components/layout/app-shell'
-import { AdminShell } from '@/components/admin/admin-shell'
-import { ProtectedRoute } from '@/components/admin/protected-route'
-import HomePage from '@/pages/home'
 import {
+  HomePage,
+  AdminShell,
+  ProtectedRoute,
   BusinessListPage,
   BusinessDetailPage,
   EventListPage,

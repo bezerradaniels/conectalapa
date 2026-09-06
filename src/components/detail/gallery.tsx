@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import type { GalleryItem } from '@/types'
+import { optimizeImageUrl } from '@/lib/image-url'
 import { GalleryLightbox } from './gallery-lightbox'
 
 export interface GalleryProps {
@@ -43,7 +44,7 @@ export function Gallery({ images, entityName, className }: GalleryProps) {
             }
           >
             <img
-              src={image.image_url}
+              src={optimizeImageUrl(image.image_url, sorted.length === 1 ? 700 : 300) || undefined}
               alt={image.caption || `${entityName} — foto ${index + 1}`}
               loading="lazy"
               decoding="async"

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { GalleryItem } from '@/types'
+import { optimizeImageUrl } from '@/lib/image-url'
 
 export interface GalleryLightboxProps {
   images: GalleryItem[]
@@ -114,7 +115,7 @@ export function GalleryLightbox({ images, index, entityName, onClose, onNavigate
         )}
 
         <img
-          src={current.image_url}
+          src={optimizeImageUrl(current.image_url, 1200) || undefined}
           alt={current.caption || `${entityName} — foto ${index + 1}`}
           className="max-h-[85vh] max-w-[92vw] object-contain rounded-lg select-none"
         />
