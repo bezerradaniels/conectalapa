@@ -16,25 +16,25 @@ export function BusinessCard({ business }: BusinessCardProps) {
   return (
     <Link
       to={`/empresas/${business.slug}`}
-      className="group flex flex-col justify-between p-4 rounded-xl border border-border-hairline bg-bg-surface hover:border-border-subtle hover:shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-accent"
+      className="group flex flex-col justify-between p-5 sm:p-6 rounded-2xl border border-border-hairline bg-bg-surface shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-black/[0.08] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent"
     >
       <span className="sr-only">Ver detalhes de </span>
       <div>
-        <div className="flex items-start gap-3.5">
+        <div className="flex items-start gap-4">
           {/* Logo or monogram fallback */}
           {business.logo_url ? (
             <img
-              src={optimizeImageUrl(business.logo_url, 112) || undefined}
+              src={optimizeImageUrl(business.logo_url, 128) || undefined}
               alt=""
               loading="lazy"
               decoding="async"
-              width={56}
-              height={56}
-              className="w-14 h-14 rounded-lg object-cover border border-border-hairline shrink-0 bg-bg-subtle"
+              width={64}
+              height={64}
+              className="w-16 h-16 rounded-2xl object-cover border border-black/[0.04] shrink-0 bg-bg-subtle shadow-xs"
             />
           ) : (
             <div
-              className="w-14 h-14 rounded-lg bg-accent-subtle border border-border-hairline text-accent-text font-bold text-lg flex items-center justify-center shrink-0 uppercase select-none"
+              className="w-16 h-16 rounded-2xl bg-accent-subtle border border-accent-border/40 text-accent-text font-bold text-xl flex items-center justify-center shrink-0 uppercase select-none shadow-xs"
               aria-hidden="true"
             >
               {business.name.slice(0, 2)}
@@ -44,7 +44,7 @@ export function BusinessCard({ business }: BusinessCardProps) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 flex-wrap">
               {business.category && (
-                <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-2xs font-medium text-slate-700">
+                <span className="inline-flex items-center rounded-full bg-slate-100/90 px-2.5 py-0.5 text-2xs font-semibold text-slate-700 border border-black/[0.04]">
                   {business.category.name}
                 </span>
               )}

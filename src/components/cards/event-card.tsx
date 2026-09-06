@@ -37,33 +37,33 @@ export function EventCard({ event, showImage = true }: EventCardProps) {
   return (
     <Link
       to={`/eventos/${event.slug}`}
-      className="group flex flex-col sm:flex-row items-stretch gap-4 p-4 rounded-xl border border-border-hairline bg-bg-surface hover:border-border-subtle hover:shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-accent"
+      className="group flex flex-col sm:flex-row items-stretch gap-4 p-5 rounded-2xl border border-border-hairline bg-bg-surface shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-black/[0.08] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent"
     >
       <span className="sr-only">Ver detalhes do evento </span>
       {/* Optional promotional image or date visual anchor */}
       {showImage && event.promotional_image_url ? (
-        <div className={`relative w-full sm:w-32 shrink-0 ${aspectClass} overflow-hidden rounded-lg bg-bg-subtle border border-border-hairline`}>
+        <div className={`relative w-full sm:w-36 shrink-0 ${aspectClass} overflow-hidden rounded-2xl bg-bg-subtle border border-black/[0.04]`}>
           <img
             src={optimizeImageUrl(event.promotional_image_url, 400) || undefined}
             alt=""
             loading="lazy"
             decoding="async"
-            width={128}
-            height={128}
-            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+            width={144}
+            height={144}
+            className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
           />
           {/* Floating date badge on top of image */}
-          <div className="absolute top-2 left-2 flex flex-col items-center justify-center py-1 px-1.5 rounded-md bg-slate-900/85 text-white shadow-xs backdrop-blur-xs">
+          <div className="absolute top-2.5 left-2.5 flex flex-col items-center justify-center py-1 px-2 rounded-xl bg-slate-900/85 text-white shadow-xs backdrop-blur-sm border border-white/10">
             <span className="text-sm font-bold leading-none">{day}</span>
             <span className="text-3xs font-bold uppercase tracking-wider text-amber-300">{month}</span>
           </div>
         </div>
       ) : (
         /* Fallback date badge */
-        <div className="flex sm:flex-col items-center justify-center gap-1 sm:gap-0 w-full sm:w-20 py-3 px-3 sm:px-1 rounded-lg bg-bg-subtle border border-border-hairline text-center shrink-0">
-          <Calendar className="w-4 h-4 text-accent-text mb-1 hidden sm:block" aria-hidden="true" />
+        <div className="flex sm:flex-col items-center justify-center gap-1 sm:gap-0 w-full sm:w-24 py-4 px-3 sm:px-1 rounded-2xl bg-accent-subtle/80 border border-accent-border/30 text-center shrink-0">
+          <Calendar className="w-5 h-5 text-accent mb-1 hidden sm:block mx-auto" aria-hidden="true" />
           <span className="text-2xl font-bold leading-tight text-text-primary">{day}</span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-accent-text">{month}</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-accent-text">{month}</span>
         </div>
       )}
 

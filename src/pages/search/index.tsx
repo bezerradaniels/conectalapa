@@ -87,21 +87,21 @@ export default function SearchPage() {
       <Link
         key={`${item.domain}-${item.id}`}
         to={item.detail_path}
-        className="group flex flex-col sm:flex-row items-start gap-4 p-4 rounded-xl border border-border-hairline bg-bg-surface hover:border-border-subtle hover:shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-accent"
+        className="group flex flex-col sm:flex-row items-start gap-4 p-4 sm:p-5 rounded-2xl border border-black/[0.04] bg-white hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 shadow-xs focus:outline-none focus:ring-2 focus:ring-accent"
       >
         <span className="sr-only">Ver detalhes de </span>
         {item.image_url ? (
           <img
-            src={optimizeImageUrl(item.image_url, 144) || undefined}
+            src={optimizeImageUrl(item.image_url, 160) || undefined}
             alt=""
             loading="lazy"
             decoding="async"
-            width={72}
-            height={72}
-            className="w-16 h-16 sm:w-18 sm:h-18 rounded-lg object-cover border border-border-hairline shrink-0 bg-bg-subtle"
+            width={80}
+            height={80}
+            className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl object-cover border border-black/[0.04] shrink-0 bg-slate-50"
           />
         ) : (
-          <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-lg bg-bg-subtle border border-border-hairline text-slate-400 flex items-center justify-center shrink-0">
+          <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-slate-50 border border-black/[0.04] text-slate-400 flex items-center justify-center shrink-0">
             <Icon className="w-7 h-7 opacity-60" aria-hidden="true" />
           </div>
         )}
@@ -109,30 +109,30 @@ export default function SearchPage() {
         <div className="min-w-0 flex-1 flex flex-col justify-between h-full">
           <div>
             <div className="flex items-center gap-1.5 flex-wrap">
-              <Badge variant="neutral" size="sm" className="font-semibold text-2xs">
+              <Badge variant="neutral" size="sm" className="font-bold text-2xs">
                 <Icon className="w-3 h-3 mr-1 text-slate-500" aria-hidden="true" />
                 {config.label}
               </Badge>
               {item.category_name && (
-                <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-2xs font-medium text-slate-600">
+                <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-2xs font-semibold text-slate-600">
                   {item.category_name}
                 </span>
               )}
             </div>
 
-            <h3 className="mt-1.5 text-base font-semibold text-text-primary group-hover:text-accent-text transition-colors line-clamp-1">
+            <h3 className="mt-1.5 text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-1">
               {item.name}
             </h3>
 
             {item.description && (
-              <p className="mt-1 text-xs text-text-secondary line-clamp-2 leading-relaxed">
+              <p className="mt-1 text-xs text-slate-500 line-clamp-2 leading-relaxed">
                 {item.description}
               </p>
             )}
           </div>
 
           {item.subtitle && (
-            <p className="mt-2 text-xs text-text-muted truncate">
+            <p className="mt-2 text-xs text-slate-400 font-medium truncate">
               {item.subtitle}
             </p>
           )}
@@ -164,13 +164,13 @@ export default function SearchPage() {
       {/* Search form box */}
       <form onSubmit={handleFormSubmit} className="max-w-2xl">
         <div className="relative flex items-center">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" aria-hidden="true" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" aria-hidden="true" />
           <Input
             type="search"
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
             placeholder="Ex: pousada, almoço, oficina, romaria, porto seguro..."
-            className="pl-10 pr-24 py-2.5 text-sm rounded-xl border-border-hairline shadow-xs focus:ring-accent"
+            className="pl-11 pr-24 py-3 text-sm rounded-full border-black/[0.06] bg-white shadow-xs focus:ring-accent"
             aria-label="Termo de busca"
           />
           {inputVal && (
@@ -180,7 +180,7 @@ export default function SearchPage() {
                 setInputVal('')
                 setSearchParams({})
               }}
-              className="absolute right-2.5 text-xs text-slate-400 hover:text-slate-600 px-2 py-1 rounded"
+              className="absolute right-3 text-xs text-slate-400 hover:text-slate-600 px-2 py-1 rounded-full font-medium"
             >
               Limpar
             </button>
@@ -192,12 +192,12 @@ export default function SearchPage() {
       {activeQuery ? (
         <div className="space-y-6">
           {/* Header with query announcement & count */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border-hairline">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-black/[0.04]">
             <div role="status" aria-live="polite">
-              <h2 className="text-lg font-bold text-text-primary">
-                Resultados para: <span className="text-accent-text">"{activeQuery}"</span>
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">
+                Resultados para: <span className="text-blue-600">"{activeQuery}"</span>
               </h2>
-              <p className="text-xs text-text-muted mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 {isLoading ? (
                   <span className="inline-flex items-center gap-1.5 text-slate-500">
                     <Spinner size="sm" />
@@ -212,14 +212,14 @@ export default function SearchPage() {
             </div>
 
             {/* Domain filter tabs */}
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
               <button
                 type="button"
                 onClick={() => setSelectedDomain('all')}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                className={`px-3.5 py-1.5 rounded-full text-xs transition-all whitespace-nowrap ${
                   selectedDomain === 'all'
-                    ? 'bg-accent text-accent-fg font-semibold shadow-xs'
-                    : 'bg-bg-surface text-text-primary border border-border-hairline hover:bg-bg-subtle'
+                    ? 'bg-blue-600 text-white font-bold shadow-xs'
+                    : 'bg-white text-slate-700 border border-black/[0.04] hover:bg-slate-50 font-medium'
                 }`}
               >
                 Todos ({results?.totalCount || 0})
@@ -242,10 +242,10 @@ export default function SearchPage() {
                     key={dom}
                     type="button"
                     onClick={() => setSelectedDomain(dom)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                    className={`px-3.5 py-1.5 rounded-full text-xs transition-all whitespace-nowrap ${
                       selectedDomain === dom
-                        ? 'bg-accent text-accent-fg font-semibold shadow-xs'
-                        : 'bg-bg-surface text-text-primary border border-border-hairline hover:bg-bg-subtle'
+                        ? 'bg-blue-600 text-white font-bold shadow-xs'
+                        : 'bg-white text-slate-700 border border-black/[0.04] hover:bg-slate-50 font-medium'
                     }`}
                   >
                     {DOMAIN_CONFIG[dom].label} ({count})
@@ -257,9 +257,9 @@ export default function SearchPage() {
 
           {/* Results display */}
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               {Array.from({ length: 6 }).map((_, idx) => (
-                <div key={idx} className="h-24 rounded-xl border border-border-hairline bg-bg-surface animate-pulse" />
+                <div key={idx} className="h-28 rounded-2xl border border-black/[0.04] bg-white shadow-xs animate-pulse" />
               ))}
             </div>
           ) : isError ? (
@@ -415,36 +415,35 @@ export default function SearchPage() {
           )}
         </div>
       ) : (
-        /* Prompt to search */
-        <div className="rounded-2xl border border-border-hairline bg-bg-surface p-8 sm:p-12 text-center max-w-xl mx-auto space-y-4">
-          <div className="w-12 h-12 rounded-full bg-accent-subtle text-accent-text flex items-center justify-center mx-auto">
-            <Sparkles className="w-6 h-6" aria-hidden="true" />
+        <div className="rounded-3xl border border-black/[0.04] bg-white/80 backdrop-blur-sm p-8 sm:p-12 text-center max-w-xl mx-auto space-y-4 shadow-sm">
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-2xs">
+            <Sparkles className="w-7 h-7" aria-hidden="true" />
           </div>
-          <h2 className="text-base font-bold text-text-primary">
+          <h2 className="text-lg font-extrabold text-slate-900">
             O que você procura em Bom Jesus da Lapa?
           </h2>
-          <p className="text-xs sm:text-sm text-text-muted leading-relaxed">
-            Digite o nome de uma empresa, tipo de serviço, hotel, restaurante ou atração para buscar em todo o portal com correspondência fonética e sem acentos.
+          <p className="text-sm text-slate-500 leading-relaxed">
+            Digite o nome de uma empresa, tipo de serviço, pousada, restaurante, pacote ou evento para buscar em todo o portal.
           </p>
 
-          <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-2 text-left">
+          <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
             <Link
               to="/busca?q=pousada"
-              className="p-3 rounded-lg border border-border-hairline hover:bg-bg-subtle transition-colors text-xs font-medium text-text-primary block"
+              className="p-3.5 rounded-2xl border border-black/[0.04] bg-slate-50/70 hover:bg-blue-50 hover:border-blue-200 transition-all text-xs font-bold text-slate-700 hover:text-blue-700 block text-center shadow-2xs"
             >
-              🔍 "pousada"
+              🏨 "pousada"
             </Link>
             <Link
               to="/busca?q=almoco"
-              className="p-3 rounded-lg border border-border-hairline hover:bg-bg-subtle transition-colors text-xs font-medium text-text-primary block"
+              className="p-3.5 rounded-2xl border border-black/[0.04] bg-slate-50/70 hover:bg-amber-50 hover:border-amber-200 transition-all text-xs font-bold text-slate-700 hover:text-amber-700 block text-center shadow-2xs"
             >
-              🔍 "almoco" (Açaí / Restaurante)
+              🍽️ "almoço"
             </Link>
             <Link
               to="/busca?q=romaria"
-              className="p-3 rounded-lg border border-border-hairline hover:bg-bg-subtle transition-colors text-xs font-medium text-text-primary block"
+              className="p-3.5 rounded-2xl border border-black/[0.04] bg-slate-50/70 hover:bg-purple-50 hover:border-purple-200 transition-all text-xs font-bold text-slate-700 hover:text-purple-700 block text-center shadow-2xs"
             >
-              🔍 "romaria"
+              ⛪ "romaria"
             </Link>
           </div>
         </div>

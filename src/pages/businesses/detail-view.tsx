@@ -55,11 +55,11 @@ export function BusinessDetailView({ business, related }: BusinessDetailViewProp
                 alt=""
                 width={48}
                 height={48}
-                className="w-12 h-12 rounded-lg object-cover border border-border-hairline shrink-0 bg-bg-subtle"
+                className="w-12 h-12 rounded-2xl object-cover border border-black/[0.04] shrink-0 bg-bg-subtle shadow-xs"
               />
             ) : (
               <span
-                className="w-12 h-12 rounded-lg bg-accent-subtle border border-border-hairline text-accent-text font-bold text-lg flex items-center justify-center shrink-0 uppercase select-none"
+                className="w-12 h-12 rounded-2xl bg-accent-subtle border border-accent-border/40 text-accent-text font-bold text-lg flex items-center justify-center shrink-0 uppercase select-none shadow-xs"
                 aria-hidden="true"
               >
                 {business.name.slice(0, 2)}
@@ -71,7 +71,7 @@ export function BusinessDetailView({ business, related }: BusinessDetailViewProp
         description={
           <span className="flex flex-wrap items-center gap-2">
             {business.category && (
-              <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+              <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                 {business.category.name}
               </span>
             )}

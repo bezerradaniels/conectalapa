@@ -25,7 +25,7 @@ export function FilterBar({
   return (
     <div className={`space-y-3 ${className}`}>
       {/* Desktop inline filters container */}
-      <div className="hidden md:block p-4 rounded-xl border border-border-hairline bg-bg-surface">
+      <div className="hidden md:block p-6 rounded-2xl border border-border-hairline bg-bg-surface shadow-sm">
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-border-hairline">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="w-4 h-4 text-accent-text" aria-hidden="true" />

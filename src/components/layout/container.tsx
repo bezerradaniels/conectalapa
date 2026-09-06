@@ -7,7 +7,7 @@ export interface ContainerProps extends HTMLAttributes<HTMLDivElement> {
 
 const sizeClasses = {
   narrow: 'max-w-3xl',
-  default: 'max-w-5xl',
+  default: 'max-w-6xl',
   wide: 'max-w-7xl',
 }
 

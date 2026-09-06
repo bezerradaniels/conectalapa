@@ -21,7 +21,7 @@ export function FilterChips({ chips, onClearAll, className = '' }: FilterChipsPr
       {chips.map((chip) => (
         <span
           key={chip.id}
-          className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-full text-xs font-medium bg-accent-subtle text-accent-text border border-accent/20 transition-all hover:bg-accent/15"
+          className="inline-flex items-center gap-1.5 pl-3 pr-2 py-1 rounded-full text-xs font-semibold bg-accent-subtle text-accent-text border border-accent-border/60 shadow-2xs transition-all hover:bg-accent/15"
         >
           <span>{chip.label}</span>
           <button

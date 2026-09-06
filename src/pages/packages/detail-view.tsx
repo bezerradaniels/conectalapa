@@ -59,7 +59,7 @@ export function PackageDetailView({ pkg, related }: PackageDetailViewProps) {
       />
 
       {pkg.image_url && (
-        <div className="w-full aspect-video overflow-hidden rounded-2xl bg-bg-subtle border border-border-hairline">
+        <div className="w-full aspect-video overflow-hidden rounded-3xl bg-bg-subtle border border-black/[0.04] shadow-sm">
           <img
             src={optimizeImageUrl(pkg.image_url, 700) || undefined}
             alt={`Pacote para ${pkg.destination}`}
@@ -83,22 +83,22 @@ export function PackageDetailView({ pkg, related }: PackageDetailViewProps) {
         )}
         <span className="ml-auto text-right">
           <span className="block text-xs text-text-muted">A partir de</span>
-          <span className="block text-xl font-bold text-text-primary">{formatCurrency(pkg.price)}</span>
+          <span className="block text-2xl font-bold text-coral">{formatCurrency(pkg.price)}</span>
         </span>
       </div>
 
-      <div className="rounded-xl border border-border-hairline bg-bg-surface p-4 flex items-center gap-3">
-        <span className="w-10 h-10 rounded-lg bg-accent-subtle border border-border-hairline text-accent-text flex items-center justify-center shrink-0">
-          <Building2 className="w-5 h-5" aria-hidden="true" />
+      <div className="rounded-2xl border border-border-hairline bg-bg-surface p-5 flex items-center gap-4 shadow-sm">
+        <span className="w-12 h-12 rounded-2xl bg-accent-subtle border border-accent-border/40 text-accent-text flex items-center justify-center shrink-0 shadow-2xs">
+          <Building2 className="w-6 h-6" aria-hidden="true" />
         </span>
         <div className="min-w-0">
           <span className="block text-xs text-text-muted">Agência responsável</span>
           {pkg.agency?.slug ? (
-            <Link to={`/empresas/${pkg.agency.slug}`} className="font-semibold text-text-primary hover:text-accent-text hover:underline truncate block">
+            <Link to={`/empresas/${pkg.agency.slug}`} className="font-bold text-text-primary hover:text-accent-text hover:underline truncate block">
               {agencyName}
             </Link>
           ) : (
-            <span className="font-semibold text-text-primary truncate block">{agencyName}</span>
+            <span className="font-bold text-text-primary truncate block">{agencyName}</span>
           )}
         </div>
       </div>

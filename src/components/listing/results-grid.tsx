@@ -18,7 +18,7 @@ export function ResultsGrid({ children, columns = 3, className = '' }: ResultsGr
     <div
       role="region"
       aria-label="Grade de resultados"
-      className={`grid ${columnClasses} gap-4 sm:gap-5 ${className}`}
+      className={`grid ${columnClasses} gap-5 sm:gap-6 lg:gap-7 ${className}`}
     >
       {children}
     </div>

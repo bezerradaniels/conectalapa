@@ -27,7 +27,7 @@ export function Gallery({ images, entityName, className }: GalleryProps) {
 
   return (
     <div className={className}>
-      <div className={sorted.length === 1 ? 'grid grid-cols-1' : 'grid grid-cols-2 sm:grid-cols-3 gap-2'}>
+      <div className={sorted.length === 1 ? 'grid grid-cols-1' : 'grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4'}>
         {sorted.map((image, index) => (
           <button
             key={image.id}
@@ -39,8 +39,8 @@ export function Gallery({ images, entityName, className }: GalleryProps) {
             aria-label={`Ver imagem ${index + 1} de ${sorted.length} de ${entityName}`}
             className={
               sorted.length === 1
-                ? 'relative aspect-video w-full rounded-xl overflow-hidden bg-bg-subtle border border-border-hairline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2'
-                : 'relative aspect-square w-full rounded-lg overflow-hidden bg-bg-subtle border border-border-hairline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2'
+                ? 'relative aspect-video w-full rounded-3xl overflow-hidden bg-bg-subtle border border-black/[0.04] shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2'
+                : 'relative aspect-square w-full rounded-2xl overflow-hidden bg-bg-subtle border border-black/[0.04] shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2'
             }
           >
             <img

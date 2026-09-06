@@ -67,12 +67,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           aria-invalid={Boolean(error)}
           aria-describedby={describedBy}
           className={cn(
-            'w-full h-10 px-3 py-2 text-base md:text-sm rounded-lg bg-bg-surface text-text-primary',
-            'border border-border-hairline transition-colors',
-            'placeholder:text-text-muted',
-            'focus:outline-none focus:ring-2 focus:ring-accent focus:border-border-subtle',
+            'w-full h-11 px-4 py-2.5 text-base md:text-sm rounded-xl bg-slate-50/80 focus:bg-white text-text-primary',
+            'border border-black/[0.07] transition-all duration-200',
+            'placeholder:text-text-muted/80 shadow-2xs',
+            'focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent',
             'disabled:opacity-50 disabled:bg-bg-subtle disabled:cursor-not-allowed',
-            error && 'border-danger-solid focus:ring-danger-solid',
+            error && 'border-danger-solid focus:ring-danger-solid/20 focus:border-danger-solid',
             className
           )}
           {...props}

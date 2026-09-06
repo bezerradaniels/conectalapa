@@ -1,29 +1,49 @@
 @import 'tailwindcss';
-@import '@fontsource/inter/latin.css';
+@import '@fontsource/dm-sans/latin.css';
 
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+  --font-sans: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 
-  /* Accent Ramp (Sky) */
-  --color-accent: #38bdf8;
-  --color-accent-hover: #0284c7;
-  --color-accent-text: #0369a1;
-  --color-accent-subtle: #f0f9ff;
-  --color-accent-border: #bae6fd;
+  /* Accent Ramp (Modern Electric Blue) */
+  --color-accent: #3b5bf5;
+  --color-accent-hover: #2643d6;
+  --color-accent-text: #1d37b6;
+  --color-accent-subtle: #eff3ff;
+  --color-accent-border: #d4defd;
+  --color-accent-fg: #ffffff;
 
-  /* Neutral Ramp (Slate) */
-  --color-bg-page: #f8fafc;
+  /* Playful & Diverse Palette */
+  --color-coral: #f05a46;
+  --color-coral-hover: #d94330;
+  --color-coral-subtle: #fff1ee;
+  --color-coral-text: #cf3723;
+
+  --color-mint: #10b981;
+  --color-mint-subtle: #ecfdf5;
+  --color-mint-text: #059669;
+
+  --color-amber: #f59e0b;
+  --color-amber-subtle: #fffbeb;
+  --color-amber-text: #b45309;
+
+  --color-purple: #8b5cf6;
+  --color-purple-subtle: #f5f3ff;
+  --color-purple-text: #6d28d9;
+
+  /* Neutral Ramp (Airy & Clean) */
+  --color-bg-page: #f8f9fc;
   --color-bg-surface: #ffffff;
-  --color-bg-subtle: #f1f5f9;
-  --color-bg-muted: #e2e8f0;
+  --color-bg-subtle: #f1f3f9;
+  --color-bg-muted: #e4e8f1;
 
-  --color-border-hairline: #e2e8f0;
-  --color-border-subtle: #cbd5e1;
+  /* Soft "Invisible" Borders */
+  --color-border-hairline: rgba(15, 23, 42, 0.05);
+  --color-border-subtle: rgba(15, 23, 42, 0.09);
 
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #334155;
-  --color-text-muted: #64748b;
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6b7280;
 
   /* Semantic Colors */
   --color-success-bg: #ecfdf5;
@@ -40,30 +60,40 @@
   --color-danger-solid: #e11d48;
   --color-danger-solid-hover: #be123c;
 
-  /* Typography Scale: Major Third (1.250) */
-  --text-2xs: 0.625rem;
-  --text-2xs--line-height: 0.875rem;
-  --text-xs: 0.75rem;
-  --text-xs--line-height: 1rem;
+  /* Typography Scale */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 0.9375rem;
+  --text-xs: 0.78125rem;
+  --text-xs--line-height: 1.125rem;
   --text-sm: 0.875rem;
-  --text-sm--line-height: 1.25rem;
+  --text-sm--line-height: 1.3125rem;
   --text-base: 1rem;
-  --text-base--line-height: 1.5rem;
-  --text-lg: 1.25rem;
+  --text-base--line-height: 1.5625rem;
+  --text-lg: 1.1875rem;
   --text-lg--line-height: 1.75rem;
-  --text-xl: 1.5625rem;
-  --text-xl--line-height: 2rem;
-  --text-2xl: 1.953rem;
+  --text-xl: 1.4375rem;
+  --text-xl--line-height: 1.9375rem;
+  --text-2xl: 1.8125rem;
   --text-2xl--line-height: 2.25rem;
-  --text-3xl: 2.441rem;
+  --text-3xl: 2.375rem;
   --text-3xl--line-height: 2.75rem;
 
-  /* Radii */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
+  /* Generous Radii */
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.125rem;
+  --radius-xl: 1.375rem;
+  --radius-2xl: 1.75rem;
+  --radius-3xl: 2.25rem;
   --radius-full: 9999px;
+
+  /* Soft Ambient Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
+  --shadow-sm: 0 2px 8px -1px rgba(15, 23, 42, 0.04), 0 1px 3px -1px rgba(15, 23, 42, 0.02);
+  --shadow-md: 0 6px 24px -4px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  --shadow-lg: 0 14px 36px -6px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+  --shadow-xl: 0 22px 50px -10px rgba(15, 23, 42, 0.12), 0 8px 20px -4px rgba(15, 23, 42, 0.06);
 }
 
 @layer base {

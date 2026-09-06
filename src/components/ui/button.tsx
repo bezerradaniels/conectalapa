@@ -30,29 +30,29 @@ export type ButtonProps = ButtonWithChildren | IconOnlyButton
 
 const variantStyles: Record<NonNullable<BaseButtonProps['variant']>, string> = {
   primary:
-    'bg-accent text-slate-900 font-semibold hover:bg-accent-hover active:opacity-95 shadow-none border border-transparent',
+    'bg-accent text-white font-semibold hover:bg-accent-hover active:scale-[0.98] shadow-xs hover:shadow-md transition-all duration-200 border border-transparent',
   secondary:
-    'bg-bg-surface text-text-primary font-medium border border-border-hairline hover:bg-bg-subtle hover:border-border-subtle active:bg-bg-subtle',
+    'bg-bg-surface text-text-primary font-medium border border-border-hairline hover:bg-bg-subtle hover:border-black/[0.1] hover:shadow-xs active:scale-[0.98] transition-all duration-200',
   ghost:
-    'bg-transparent text-text-secondary font-medium hover:text-text-primary hover:bg-bg-subtle active:bg-bg-subtle border border-transparent',
+    'bg-transparent text-text-secondary font-medium hover:text-text-primary hover:bg-bg-subtle active:bg-bg-subtle/80 transition-all duration-200 border border-transparent',
   danger:
-    'bg-danger-solid text-white font-medium hover:bg-danger-solid-hover active:opacity-95 border border-transparent focus-visible:ring-danger-solid',
+    'bg-danger-solid text-white font-semibold hover:bg-danger-solid-hover active:scale-[0.98] shadow-xs transition-all duration-200 border border-transparent focus-visible:ring-danger-solid',
 }
 
 const sizeStyles: Record<NonNullable<BaseButtonProps['size']>, { button: string; iconOnly: string; spinner: 'sm' | 'md' | 'lg' }> = {
   sm: {
-    button: 'h-8 px-3 text-xs gap-1.5 rounded-md',
-    iconOnly: 'w-8 h-8 p-0 rounded-md',
+    button: 'h-8.5 px-3.5 text-xs gap-1.5 rounded-full',
+    iconOnly: 'w-8.5 h-8.5 p-0 rounded-full',
     spinner: 'sm',
   },
   md: {
-    button: 'h-10 px-4 text-sm gap-2 rounded-lg',
-    iconOnly: 'w-10 h-10 p-0 rounded-lg',
+    button: 'h-10.5 px-5 text-sm gap-2 rounded-full',
+    iconOnly: 'w-10.5 h-10.5 p-0 rounded-full',
     spinner: 'sm',
   },
   lg: {
-    button: 'h-12 px-6 text-base gap-2.5 rounded-lg',
-    iconOnly: 'w-12 h-12 p-0 rounded-lg',
+    button: 'h-12.5 px-6.5 text-base gap-2.5 rounded-full',
+    iconOnly: 'w-12.5 h-12.5 p-0 rounded-full',
     spinner: 'md',
   },
 }

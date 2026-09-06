@@ -8,7 +8,7 @@ import { ListingCtaSection } from './components/listing-cta-section'
 
 export default function HomePage() {
   return (
-    <div className="space-y-2">
+    <div className="space-y-6 sm:space-y-8 pb-8">
       <Head
         title="Guia da Cidade & Romaria"
         description="Guia comercial, hospedagem, gastronomia, pacotes turísticos e agenda de eventos de Bom Jesus da Lapa, Bahia."

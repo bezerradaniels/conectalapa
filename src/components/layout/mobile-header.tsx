@@ -13,7 +13,7 @@ export const MobileHeader = forwardRef<HTMLButtonElement, MobileHeaderProps>(
     const navigate = useNavigate()
 
     return (
-      <header className="lg:hidden sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-border-hairline bg-bg-surface/95 px-4 backdrop-blur-xs">
+      <header className="lg:hidden sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-black/[0.04] bg-bg-surface/90 px-4 sm:px-6 backdrop-blur-md shadow-2xs">
         {/* Left: Menu Trigger */}
         <Button
           ref={ref}
@@ -30,9 +30,9 @@ export const MobileHeader = forwardRef<HTMLButtonElement, MobileHeaderProps>(
         {/* Center: Wordmark */}
         <Link
           to="/"
-          className="text-base font-bold tracking-tight text-text-primary flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-2 py-1"
+          className="text-lg font-bold tracking-tight text-text-primary flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-full px-3 py-1"
         >
-          Conecta<span className="text-accent-text">Lapa</span>
+          Conecta<span className="text-accent">Lapa</span>
         </Link>
 
         {/* Right: Search Action */}
@@ -40,7 +40,7 @@ export const MobileHeader = forwardRef<HTMLButtonElement, MobileHeaderProps>(
           type="button"
           variant="ghost"
           size="sm"
-          onClick={() => navigate('/empresas')}
+          onClick={() => navigate('/busca')}
           aria-label="Buscar estabelecimentos e eventos"
           leadingIcon={<Search className="w-5 h-5 text-text-primary" aria-hidden="true" />}
         />

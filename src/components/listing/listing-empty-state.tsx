@@ -27,15 +27,15 @@ export function ListingEmptyState({
     return (
       <div
         data-testid="domain-empty-state"
-        className={`rounded-2xl border border-dashed border-border-subtle bg-bg-surface p-8 sm:p-12 text-center flex flex-col items-center justify-center max-w-lg mx-auto ${className}`}
+        className={`rounded-3xl border border-dashed border-black/[0.08] bg-white/80 backdrop-blur-sm p-8 sm:p-12 text-center flex flex-col items-center justify-center max-w-lg mx-auto shadow-2xs ${className}`}
       >
-        <div className="w-12 h-12 rounded-full bg-accent-subtle flex items-center justify-center text-accent-text mb-4">
-          <PlusCircle className="w-6 h-6" aria-hidden="true" />
+        <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 mb-4 shadow-2xs">
+          <PlusCircle className="w-7 h-7" aria-hidden="true" />
         </div>
-        <h3 className="text-lg font-bold text-text-primary">
+        <h3 className="text-lg font-extrabold text-slate-900">
           Nenhum cadastro de {domainLabel} no momento
         </h3>
-        <p className="mt-2 text-sm text-text-muted">
+        <p className="mt-2 text-sm text-slate-500">
           Ainda não temos registros publicados nesta seção. Você conhece ou gerencia algum estabelecimento em Bom Jesus da Lapa?
         </p>
         <div className="mt-6 flex flex-wrap gap-3 justify-center">
@@ -57,15 +57,15 @@ export function ListingEmptyState({
     return (
       <div
         data-testid="filter-empty-state"
-        className={`rounded-2xl border border-border-hairline bg-bg-surface p-8 sm:p-12 text-center flex flex-col items-center justify-center max-w-lg mx-auto ${className}`}
+        className={`rounded-3xl border border-black/[0.04] bg-white/80 backdrop-blur-sm p-8 sm:p-12 text-center flex flex-col items-center justify-center max-w-lg mx-auto shadow-sm ${className}`}
       >
-        <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
-          <FilterX className="w-6 h-6" aria-hidden="true" />
+        <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mb-4 shadow-2xs">
+          <FilterX className="w-7 h-7" aria-hidden="true" />
         </div>
-        <h3 className="text-lg font-bold text-text-primary">
+        <h3 className="text-lg font-extrabold text-slate-900">
           Nenhum resultado com os filtros selecionados
         </h3>
-        <p className="mt-2 text-sm text-text-muted">
+        <p className="mt-2 text-sm text-slate-500">
           Não encontramos nenhum item correspondente aos {activeFiltersCount > 0 ? `${activeFiltersCount} ` : ''}critérios aplicados. Tente remover alguns filtros para ver mais opções.
         </p>
         {onClearFilters && (
@@ -88,10 +88,10 @@ export function ListingEmptyState({
   return (
     <div
       data-testid="search-empty-state"
-      className={`rounded-2xl border border-border-hairline bg-bg-surface p-8 sm:p-12 text-center flex flex-col items-center justify-center max-w-lg mx-auto ${className}`}
+      className={`rounded-3xl border border-black/[0.04] bg-white/80 backdrop-blur-sm p-8 sm:p-12 text-center flex flex-col items-center justify-center max-w-lg mx-auto shadow-sm ${className}`}
     >
-      <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mb-4">
-        <SearchX className="w-6 h-6" aria-hidden="true" />
+      <div className="w-14 h-14 rounded-2xl bg-slate-100 text-slate-500 flex items-center justify-center mb-4 shadow-2xs">
+        <SearchX className="w-7 h-7" aria-hidden="true" />
       </div>
       <h3 className="text-lg font-bold text-text-primary">
         Nenhum resultado para "{searchQuery || ''}"

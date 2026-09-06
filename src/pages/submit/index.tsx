@@ -172,19 +172,19 @@ export default function SubmitPage() {
 
   if (isSuccess) {
     return (
-      <div className="max-w-lg mx-auto py-12 text-center">
+      <div className="max-w-xl mx-auto py-12 px-6 sm:px-10 bg-white rounded-3xl border border-black/[0.04] shadow-sm text-center">
         <Head title="Solicitação enviada" />
-        <div className="w-14 h-14 rounded-full bg-success-bg border border-success-border text-success-text flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="w-7 h-7" aria-hidden="true" />
+        <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-2xs">
+          <CheckCircle2 className="w-8 h-8" aria-hidden="true" />
         </div>
-        <h1 className="text-xl font-bold text-text-primary mb-2">Recebemos sua solicitação!</h1>
-        <p className="text-sm text-text-secondary">
+        <h1 className="text-2xl font-extrabold text-slate-900 mb-2">Recebemos sua solicitação!</h1>
+        <p className="text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
           Vamos entrar em contato pelo WhatsApp em até 2 dias úteis para confirmar os detalhes e publicar seu cadastro.
         </p>
         <Button
           type="button"
           variant="secondary"
-          className="mt-6"
+          className="mt-6 rounded-full"
           onClick={() => {
             setIsSuccess(false)
             reset(DEFAULT_VALUES)
@@ -197,7 +197,7 @@ export default function SubmitPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto">
+    <div className="max-w-xl mx-auto space-y-6">
       <Head
         title="Solicitar cadastro"
         description="Peça para incluir sua empresa, evento, pacote, hospedagem ou restaurante no ConectaLapa."
@@ -207,7 +207,7 @@ export default function SubmitPage() {
         description="Conte um pouco sobre o que você quer anunciar. Nós entramos em contato pelo WhatsApp para confirmar os detalhes e publicar."
       />
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5 bg-white p-6 sm:p-8 rounded-3xl border border-black/[0.04] shadow-sm">
         {/* Honeypot — invisible to real visitors, irresistible to naive bots. */}
         <div className="absolute left-[-9999px] w-px h-px overflow-hidden" aria-hidden="true">
           <label htmlFor={HONEYPOT_FIELD_NAME}>Deixe este campo em branco</label>

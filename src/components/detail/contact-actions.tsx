@@ -16,7 +16,7 @@ export interface ContactActionsProps {
 }
 
 const linkClass =
-  'inline-flex items-center justify-center gap-2 h-11 px-4 rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page'
+  'inline-flex items-center justify-center gap-2 h-12 px-6 rounded-full text-sm font-bold shadow-xs hover:shadow-md active:scale-[0.98] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page'
 
 /**
  * Every contact channel is a real <a href>, never a JS-only button — users

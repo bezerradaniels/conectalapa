@@ -9,6 +9,7 @@ interface CategoryItem {
   path: string
   icon: typeof Bed
   countKey: 'lodging' | 'dining' | 'events' | 'businesses' | 'packages'
+  colorClass: string
   featured?: boolean
 }
 
@@ -20,6 +21,7 @@ const CATEGORIES: CategoryItem[] = [
     path: '/hospedagem',
     icon: Bed,
     countKey: 'lodging',
+    colorClass: 'bg-blue-50 text-blue-600 border-blue-100 group-hover:bg-blue-600 group-hover:text-white',
     featured: true,
   },
   {
@@ -29,6 +31,7 @@ const CATEGORIES: CategoryItem[] = [
     path: '/gastronomia',
     icon: UtensilsCrossed,
     countKey: 'dining',
+    colorClass: 'bg-orange-50 text-orange-600 border-orange-100 group-hover:bg-orange-500 group-hover:text-white',
     featured: true,
   },
   {
@@ -38,6 +41,7 @@ const CATEGORIES: CategoryItem[] = [
     path: '/eventos',
     icon: Calendar,
     countKey: 'events',
+    colorClass: 'bg-purple-50 text-purple-600 border-purple-100 group-hover:bg-purple-600 group-hover:text-white',
   },
   {
     id: 'empresas',
@@ -46,6 +50,7 @@ const CATEGORIES: CategoryItem[] = [
     path: '/empresas',
     icon: Store,
     countKey: 'businesses',
+    colorClass: 'bg-emerald-50 text-emerald-600 border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white',
   },
   {
     id: 'pacotes',
@@ -54,6 +59,7 @@ const CATEGORIES: CategoryItem[] = [
     path: '/pacotes',
     icon: Palmtree,
     countKey: 'packages',
+    colorClass: 'bg-teal-50 text-teal-600 border-teal-100 group-hover:bg-teal-600 group-hover:text-white',
   },
 ]
 
@@ -81,28 +87,20 @@ export function CategoryNavSection() {
               <Link
                 key={cat.id}
                 to={cat.path}
-                className={`group flex items-center justify-between p-4 rounded-xl border transition-all focus:outline-none focus:ring-2 focus:ring-accent min-h-16 ${
-                  cat.featured
-                    ? 'border-border-subtle bg-bg-surface hover:border-accent-border hover:shadow-xs'
-                    : 'border-border-hairline bg-bg-surface hover:border-border-subtle hover:bg-bg-subtle/50'
-                }`}
+                className="group flex items-center justify-between p-4.5 sm:p-5 rounded-2xl border border-border-hairline bg-bg-surface shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-black/[0.08] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent min-h-18"
               >
-                <div className="flex items-center gap-3.5 min-w-0">
+                <div className="flex items-center gap-4 min-w-0">
                   <div
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors ${
-                      cat.featured
-                        ? 'bg-accent-subtle text-accent-text group-hover:bg-accent group-hover:text-slate-900'
-                        : 'bg-bg-subtle text-slate-700 group-hover:bg-slate-200'
-                    }`}
+                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border transition-all duration-300 shadow-2xs ${cat.colorClass}`}
                   >
-                    <Icon className="w-5 h-5" aria-hidden="true" />
+                    <Icon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" aria-hidden="true" />
                   </div>
 
                   <div className="min-w-0">
-                    <span className="block text-sm font-semibold text-text-primary group-hover:text-accent-text transition-colors">
+                    <span className="block text-sm font-bold text-text-primary group-hover:text-accent-text transition-colors">
                       {cat.title}
                     </span>
-                    <span className="block text-xs text-text-muted truncate">
+                    <span className="block text-xs text-text-muted truncate mt-0.5">
                       {cat.subtitle}
                     </span>
                   </div>

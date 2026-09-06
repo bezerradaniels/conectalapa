@@ -17,11 +17,11 @@ export function PageHeader({
   className,
 }: PageHeaderProps) {
   return (
-    <div className={cn('space-y-3 mb-6 sm:mb-8 border-b border-border-hairline/60 pb-5 sm:pb-6', className)}>
+    <div className={cn('space-y-3 mb-6 sm:mb-8 border-b border-black/[0.04] pb-6 sm:pb-8', className)}>
       {breadcrumbs}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="space-y-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary leading-tight">
+        <div className="space-y-1.5 min-w-0">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-text-primary leading-tight">
             {title}
           </h1>
           {description && (

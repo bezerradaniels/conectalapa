@@ -137,9 +137,9 @@ export function Pagination({
                   onClick={() => onPageChange(pageNum)}
                   aria-current={isCurrent ? 'page' : undefined}
                   aria-label={`Ir para a página ${pageNum}`}
-                  className={`min-w-8 h-8 px-2 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-accent ${
+                  className={`min-w-9 h-9 px-2 text-xs font-bold rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent ${
                     isCurrent
-                      ? 'bg-accent text-accent-fg font-semibold shadow-xs'
+                      ? 'bg-accent text-white shadow-xs'
                       : 'text-text-primary hover:bg-bg-subtle'
                   }`}
                 >

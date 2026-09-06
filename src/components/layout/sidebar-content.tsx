@@ -53,7 +53,7 @@ export function SidebarContent({ onItemClick }: SidebarContentProps) {
         </div>
 
         {/* Primary Navigation */}
-        <nav aria-label="Navegação Principal" className="space-y-1">
+        <nav aria-label="Navegação Principal" className="space-y-1.5">
           {primaryNavItems.map((item) => {
             const Icon = item.icon
             return (
@@ -64,11 +64,11 @@ export function SidebarContent({ onItemClick }: SidebarContentProps) {
                 onClick={onItemClick}
                 className={({ isActive }) =>
                   cn(
-                    'group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors border-l-3',
+                    'group flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-full transition-all duration-200',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
                     isActive
-                      ? 'bg-accent-subtle text-accent-text font-semibold border-accent'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-subtle border-transparent'
+                      ? 'bg-accent text-white font-bold shadow-xs'
+                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-subtle'
                   )
                 }
               >
@@ -76,8 +76,8 @@ export function SidebarContent({ onItemClick }: SidebarContentProps) {
                   <>
                     <Icon
                       className={cn(
-                        'w-4 h-4 shrink-0 transition-colors',
-                        isActive ? 'text-accent-text' : 'text-text-muted group-hover:text-text-primary'
+                        'w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110',
+                        isActive ? 'text-white' : 'text-text-muted group-hover:text-text-primary'
                       )}
                       aria-hidden="true"
                     />
@@ -89,25 +89,17 @@ export function SidebarContent({ onItemClick }: SidebarContentProps) {
           })}
         </nav>
 
-        <Divider className="my-3" />
+        <Divider className="my-4" />
 
-        {/* Secondary Action */}
+        {/* Secondary Action — Prominent Pill */}
         <div className="px-1">
           <NavLink
             to="/solicitar"
             onClick={onItemClick}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors border-l-3',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
-                isActive
-                  ? 'bg-accent-subtle text-accent-text font-semibold border-accent'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-bg-subtle border-transparent'
-              )
-            }
+            className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-full bg-accent-subtle text-accent-text hover:bg-accent hover:text-white border border-accent-border/40 transition-all duration-200 shadow-xs hover:shadow-sm"
           >
-            <PlusCircle className="w-4 h-4 text-accent-text shrink-0" aria-hidden="true" />
-            <span>Solicitar cadastro</span>
+            <PlusCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
+            <span>Divulgar no Guia</span>
           </NavLink>
         </div>
       </div>
