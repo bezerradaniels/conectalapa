@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
-import { Calendar, Building2, Palmtree } from 'lucide-react'
+import { Calendar, Building2, Palmtree, Clock } from 'lucide-react'
 import type { Package } from '@/types'
-import { formatDepartureDate, formatCurrency } from '@/lib/format'
+import { formatDepartureDate, formatCurrency, calculateDurationDays } from '@/lib/format'
 
 export interface PackageCardProps {
   pkg: Package
@@ -10,6 +10,7 @@ export interface PackageCardProps {
 export function PackageCard({ pkg }: PackageCardProps) {
   const agencyName = pkg.agency?.name || pkg.agency_name || 'Agência local'
   const departureFormatted = formatDepartureDate(pkg.departure_date)
+  const durationDays = calculateDurationDays(pkg.departure_date, pkg.return_date)
 
   return (
     <Link
@@ -21,35 +22,52 @@ export function PackageCard({ pkg }: PackageCardProps) {
         <div className="relative aspect-16/9 w-full bg-bg-subtle overflow-hidden">
           <img
             src={pkg.image_url}
-            alt={pkg.destination}
+            alt=""
             loading="lazy"
             decoding="async"
             width={400}
             height={225}
             className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
           />
-          <div className="absolute top-2.5 left-2.5">
-            <span className="inline-flex items-center gap-1 rounded-md bg-white/95 backdrop-blur-xs px-2.5 py-1 text-xs font-semibold text-slate-800 shadow-xs">
-              <Calendar className="w-3.5 h-3.5 text-accent-text" aria-hidden="true" />
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
+            <span className="inline-flex items-center gap-1 rounded-md bg-white/95 backdrop-blur-xs px-2.5 py-1 text-2xs font-semibold text-slate-800 shadow-xs">
+              <Calendar className="w-3 h-3 text-accent-text" aria-hidden="true" />
               Saída {departureFormatted}
             </span>
+            {durationDays && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-slate-900/80 backdrop-blur-xs px-2 py-1 text-2xs font-medium text-white shadow-xs">
+                <Clock className="w-3 h-3 text-slate-300" aria-hidden="true" />
+                {durationDays} {durationDays === 1 ? 'dia' : 'dias'}
+              </span>
+            )}
           </div>
         </div>
       ) : (
-        <div className="relative aspect-16/9 w-full bg-slate-100 flex items-center justify-center text-slate-400">
-          <Palmtree className="w-8 h-8 opacity-40" aria-hidden="true" />
-          <div className="absolute top-2.5 left-2.5">
-            <span className="inline-flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-800 shadow-xs">
-              <Calendar className="w-3.5 h-3.5 text-accent-text" aria-hidden="true" />
+        <div className="relative aspect-16/9 w-full bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center text-teal-600/70 border-b border-border-hairline">
+          <Palmtree className="w-10 h-10 opacity-50" aria-hidden="true" />
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-md bg-white/95 px-2.5 py-1 text-2xs font-semibold text-slate-800 shadow-xs">
+              <Calendar className="w-3 h-3 text-accent-text" aria-hidden="true" />
               Saída {departureFormatted}
             </span>
+            {durationDays && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-slate-900/80 px-2 py-1 text-2xs font-medium text-white shadow-xs">
+                {durationDays} {durationDays === 1 ? 'dia' : 'dias'}
+              </span>
+            )}
           </div>
         </div>
       )}
 
       <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
-          <h3 className="text-base font-semibold text-text-primary group-hover:text-accent-text transition-colors line-clamp-1">
+          {pkg.category && (
+            <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-2xs font-medium text-slate-700 mb-1.5">
+              {pkg.category.name}
+            </span>
+          )}
+
+          <h3 className="text-base font-semibold text-text-primary group-hover:text-accent-text transition-colors line-clamp-2 leading-snug">
             {pkg.destination}
           </h3>
 
