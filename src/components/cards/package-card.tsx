@@ -1,0 +1,71 @@
+import { Link } from 'react-router-dom'
+import { Calendar, Building2, Palmtree } from 'lucide-react'
+import type { Package } from '@/types'
+import { formatDepartureDate, formatCurrency } from '@/lib/format'
+
+export interface PackageCardProps {
+  pkg: Package
+}
+
+export function PackageCard({ pkg }: PackageCardProps) {
+  const agencyName = pkg.agency?.name || pkg.agency_name || 'Agência local'
+  const departureFormatted = formatDepartureDate(pkg.departure_date)
+
+  return (
+    <Link
+      to={`/pacotes/${pkg.slug}`}
+      className="group flex flex-col rounded-xl border border-border-hairline bg-bg-surface overflow-hidden hover:border-border-subtle hover:shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-accent"
+      aria-label={`Ver detalhes do pacote para ${pkg.destination}`}
+    >
+      {pkg.image_url ? (
+        <div className="relative aspect-16/9 w-full bg-bg-subtle overflow-hidden">
+          <img
+            src={pkg.image_url}
+            alt={pkg.destination}
+            loading="lazy"
+            decoding="async"
+            width={400}
+            height={225}
+            className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+          />
+          <div className="absolute top-2.5 left-2.5">
+            <span className="inline-flex items-center gap-1 rounded-md bg-white/95 backdrop-blur-xs px-2.5 py-1 text-xs font-semibold text-slate-800 shadow-xs">
+              <Calendar className="w-3.5 h-3.5 text-accent-text" aria-hidden="true" />
+              Saída {departureFormatted}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="relative aspect-16/9 w-full bg-slate-100 flex items-center justify-center text-slate-400">
+          <Palmtree className="w-8 h-8 opacity-40" aria-hidden="true" />
+          <div className="absolute top-2.5 left-2.5">
+            <span className="inline-flex items-center gap-1 rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-slate-800 shadow-xs">
+              <Calendar className="w-3.5 h-3.5 text-accent-text" aria-hidden="true" />
+              Saída {departureFormatted}
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div className="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="text-base font-semibold text-text-primary group-hover:text-accent-text transition-colors line-clamp-1">
+            {pkg.destination}
+          </h3>
+
+          <div className="mt-2 flex items-center gap-1.5 text-xs text-text-muted truncate">
+            <Building2 className="w-3.5 h-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+            <span className="truncate">{agencyName}</span>
+          </div>
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-border-hairline flex items-baseline justify-between">
+          <span className="text-xs text-text-muted">A partir de</span>
+          <span className="text-base font-bold text-text-primary">
+            {formatCurrency(pkg.price)}
+          </span>
+        </div>
+      </div>
+    </Link>
+  )
+}
