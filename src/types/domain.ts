@@ -34,15 +34,14 @@ export interface AdditionalLink {
 }
 
 // Domain models
-export interface Category extends CategoryRow {}
-
-export interface Amenity extends AmenityRow {}
-
-export interface GalleryItem extends GalleryRow {}
+export type Category = CategoryRow
+export type Amenity = AmenityRow
+export type GalleryItem = GalleryRow
 
 export interface Business extends Omit<BusinessRow, 'opening_hours' | 'additional_links'> {
   opening_hours: OpeningHourInterval[]
   additional_links: AdditionalLink[]
+  category?: Category | null
 }
 
 export interface BusinessWithRelations extends Business {
@@ -53,6 +52,7 @@ export interface BusinessWithRelations extends Business {
 
 export interface Event extends Omit<EventRow, 'links'> {
   links: AdditionalLink[]
+  category?: Category | null
 }
 
 export interface EventWithRelations extends Event {
@@ -61,7 +61,9 @@ export interface EventWithRelations extends Event {
   gallery: GalleryItem[]
 }
 
-export interface Package extends PackageRow {}
+export interface Package extends PackageRow {
+  category?: Category | null
+}
 
 export interface PackageWithRelations extends Package {
   category: Category | null
@@ -69,7 +71,9 @@ export interface PackageWithRelations extends Package {
   amenities: Amenity[]
 }
 
-export interface Lodging extends LodgingRow {}
+export interface Lodging extends LodgingRow {
+  category?: Category | null
+}
 
 export interface LodgingWithRelations extends Lodging {
   category: Category | null
@@ -79,6 +83,7 @@ export interface LodgingWithRelations extends Lodging {
 
 export interface Dining extends Omit<DiningRow, 'opening_hours'> {
   opening_hours: OpeningHourInterval[]
+  category?: Category | null
 }
 
 export interface DiningWithRelations extends Dining {
@@ -87,7 +92,7 @@ export interface DiningWithRelations extends Dining {
   gallery: GalleryItem[]
 }
 
-export interface Submission extends SubmissionRow {}
+export type Submission = SubmissionRow
 
 // Normalized application error
 export interface AppError {
