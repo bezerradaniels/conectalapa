@@ -54,6 +54,22 @@ export function buildWhatsAppUrl(rawPhone: string | null | undefined, message: s
 }
 
 /**
+ * Formats digits into a Brazilian phone display mask as the admin types —
+ * "(77) 99999-9999" for an 11-digit mobile, "(77) 9999-9999" for a
+ * 10-digit landline. Purely cosmetic; `normalizePhoneToE164BR` is what
+ * actually gets stored.
+ */
+export function formatPhoneBRInput(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 11)
+
+  if (digits.length === 0) return ''
+  if (digits.length <= 2) return `(${digits}`
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
+
+/**
  * Builds an Instagram profile URL from a handle, accepting "@handle",
  * "handle", or a full instagram.com URL.
  */
