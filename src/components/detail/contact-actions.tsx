@@ -68,7 +68,7 @@ export function ContactActions({
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={cn(linkClass, 'bg-[#25D366] text-white hover:opacity-90 flex-1 sm:flex-none min-w-35')}
+          className={cn(linkClass, 'bg-[#075E54] text-white hover:opacity-90 flex-1 sm:flex-none min-w-35')}
         >
           <MessageCircle className="w-4 h-4" aria-hidden="true" />
           WhatsApp

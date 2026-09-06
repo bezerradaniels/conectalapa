@@ -119,6 +119,10 @@ export function ListingLayout({
         emptyState
       ) : (
         <div className="space-y-6">
+          {/* The filter bar's own <h2> only exists in the DOM when its mobile
+              drawer is open, which would otherwise leave the card grid's <h3>
+              as the first heading after the page's <h1> — skipping a level. */}
+          <h2 className="sr-only">Resultados</h2>
           {children}
           {pagination}
         </div>
