@@ -25,17 +25,18 @@ export function BusinessCardSkeleton() {
 
 export function EventCardSkeleton() {
   return (
-    <div className="flex flex-col sm:flex-row items-start gap-4 p-4 rounded-xl border border-border-hairline bg-bg-surface">
-      {/* Date badge placeholder */}
-      <Skeleton className="w-full sm:w-14 h-12 sm:h-14 rounded-lg shrink-0" />
+    <div className="flex flex-col sm:flex-row items-stretch gap-4 p-4 rounded-xl border border-border-hairline bg-bg-surface">
+      <Skeleton className="w-full sm:w-32 h-32 rounded-lg shrink-0" />
 
-      <div className="flex-1 w-full space-y-2">
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-4 w-20 rounded-md" />
-          <Skeleton className="h-4 w-16 rounded-md" />
+      <div className="flex-1 w-full space-y-2 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-20 rounded-md" />
+            <Skeleton className="h-4 w-16 rounded-md" />
+          </div>
+          <Skeleton className="h-5 w-4/5 rounded-md mt-2" />
+          <Skeleton className="h-3.5 w-1/2 rounded-md mt-2" />
         </div>
-        <Skeleton className="h-5 w-4/5 rounded-md" />
-        <Skeleton className="h-3.5 w-1/2 rounded-md" />
         <div className="pt-2 border-t border-border-hairline">
           <Skeleton className="h-3.5 w-1/3 rounded-md" />
         </div>
