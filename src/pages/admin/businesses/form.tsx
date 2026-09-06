@@ -1,10 +1,13 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Eye, Save } from 'lucide-react'
 import { useBusinessAdminDetail, useBusinessFilterMeta, useCreateBusinessAdmin, useUpdateBusinessAdmin } from '@/features/businesses/api/hooks'
+import { useApproveSubmission } from '@/features/submissions/api/hooks'
+import type { SubmissionPayload } from '@/features/submissions/api/queries'
+import { formatPhoneBRInput } from '@/lib/whatsapp'
 import type { OpeningHourInterval, AdditionalLink } from '@/types'
 import { Head } from '@/components/seo/head'
 import { Input } from '@/components/ui/input'
@@ -27,6 +30,7 @@ import {
   useUnsavedChangesWarning,
   UnsavedChangesDialog,
   useUploadSession,
+  useSubmissionPrefill,
   type GalleryItemDraft,
 } from '@/components/admin'
 import { BusinessDetailView } from '@/pages/businesses/detail-view'
@@ -54,6 +58,8 @@ export default function AdminBusinessFormPage() {
   const { data: meta } = useBusinessFilterMeta()
   const createMutation = useCreateBusinessAdmin()
   const updateMutation = useUpdateBusinessAdmin()
+  const { submissionId, submission } = useSubmissionPrefill()
+  const approveSubmissionMutation = useApproveSubmission()
 
   const session = useUploadSession()
   const newIdRef = useRef(crypto.randomUUID())
@@ -65,7 +71,7 @@ export default function AdminBusinessFormPage() {
   const [amenityIds, setAmenityIds] = useState<string[]>([])
   const [links, setLinks] = useState<AdditionalLink[]>([])
   const [gallery, setGallery] = useState<GalleryItemDraft[]>([])
-  const [hydrated, setHydrated] = useState(!isEditing)
+  const [hydrated, setHydrated] = useState(!isEditing && !submissionId)
   const [showPreview, setShowPreview] = useState(false)
   const saveIntentRef = useRef<'stay' | 'new'>('stay')
 
@@ -81,7 +87,12 @@ export default function AdminBusinessFormPage() {
     defaultValues: { status: 'draft', category_id: '', slug: '', name: '', address: '', whatsapp: '', instagram: '', description: '' },
   })
 
-  if (existing && !hydrated) {
+  // RHF's reset() is an imperative call into an external store, not a pure
+  // state update — calling it during render (even guarded, "adjust state
+  // during render" style) can update a Controller-wrapped field while this
+  // component is still mid-render. Both hydration paths belong in effects.
+  useEffect(() => {
+    if (!existing || hydrated) return
     setHydrated(true)
     reset({
       name: existing.name,
@@ -99,7 +110,25 @@ export default function AdminBusinessFormPage() {
     setAmenityIds(existing.amenities.map((a) => a.id))
     setLinks(existing.additional_links || [])
     setGallery(existing.gallery.map((g) => ({ key: g.id, image_url: g.image_url, caption: g.caption || '', aspect_ratio: g.aspect_ratio })))
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existing, hydrated])
+
+  useEffect(() => {
+    if (isEditing || !submission || hydrated) return
+    setHydrated(true)
+    const payload = submission.payload as unknown as SubmissionPayload
+    reset({
+      name: payload.name || submission.contact_name,
+      slug: '',
+      category_id: '',
+      address: payload.address || '',
+      whatsapp: formatPhoneBRInput(submission.contact_phone.replace(/^55/, '')),
+      instagram: payload.instagram || '',
+      description: payload.description || '',
+      status: 'draft',
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, submission, hydrated])
 
   const hasUnsavedChanges = isDirty
   const { blocker, allowNavigation } = useUnsavedChangesWarning(hasUnsavedChanges)
@@ -135,6 +164,11 @@ export default function AdminBusinessFormPage() {
       await updateMutation.mutateAsync({ id, input })
     } else {
       await createMutation.mutateAsync({ ...input, id: entityId })
+      // Only now — the entry actually saved — does the submission move to
+      // approved. Opening this form pre-filled never touched its status.
+      if (submissionId) {
+        await approveSubmissionMutation.mutateAsync({ id: submissionId, table: 'businesses', entityId })
+      }
     }
 
     await session.commitAndCleanup()

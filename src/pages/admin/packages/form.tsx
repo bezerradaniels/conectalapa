@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -12,6 +12,9 @@ import {
   useUpdatePackageAdmin,
 } from '@/features/packages/api/hooks'
 import { useBusinessesAdminPaginated } from '@/features/businesses/api/hooks'
+import { useApproveSubmission } from '@/features/submissions/api/hooks'
+import type { SubmissionPayload } from '@/features/submissions/api/queries'
+import { formatPhoneBRInput } from '@/lib/whatsapp'
 import { Head } from '@/components/seo/head'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -29,6 +32,7 @@ import {
   useUnsavedChangesWarning,
   UnsavedChangesDialog,
   useUploadSession,
+  useSubmissionPrefill,
 } from '@/components/admin'
 import { PackageDetailView } from '@/pages/packages/detail-view'
 import type { PackageWithRelations } from '@/types'
@@ -75,6 +79,8 @@ export default function AdminPackageFormPage() {
   const { data: businesses } = useBusinessesAdminPaginated({ status: 'all', sortField: 'name', pageSize: 200 })
   const createMutation = useCreatePackageAdmin()
   const updateMutation = useUpdatePackageAdmin()
+  const { submissionId, submission } = useSubmissionPrefill()
+  const approveSubmissionMutation = useApproveSubmission()
 
   const session = useUploadSession()
   const newIdRef = useRef(crypto.randomUUID())
@@ -82,7 +88,7 @@ export default function AdminPackageFormPage() {
 
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [amenityIds, setAmenityIds] = useState<string[]>([])
-  const [hydrated, setHydrated] = useState(!isEditing)
+  const [hydrated, setHydrated] = useState(!isEditing && !submissionId)
   const [showPreview, setShowPreview] = useState(false)
   const saveIntentRef = useRef<'stay' | 'new'>('stay')
 
@@ -112,7 +118,10 @@ export default function AdminPackageFormPage() {
     },
   })
 
-  if (existing && !hydrated) {
+  // reset() is an imperative external-store call, not pure state — belongs
+  // in an effect, not the render body (see businesses/form.tsx for why).
+  useEffect(() => {
+    if (!existing || hydrated) return
     setHydrated(true)
     reset({
       destination: existing.destination,
@@ -131,7 +140,30 @@ export default function AdminPackageFormPage() {
     })
     setImageUrl(existing.image_url)
     setAmenityIds(existing.amenities.map((a) => a.id))
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existing, hydrated])
+
+  useEffect(() => {
+    if (isEditing || !submission || hydrated) return
+    setHydrated(true)
+    const payload = submission.payload as unknown as SubmissionPayload
+    reset({
+      status: 'draft',
+      agencyMode: 'unregistered',
+      category_id: '',
+      slug: '',
+      destination: payload.destination || payload.name || '',
+      departure_location: '',
+      departure_date: '',
+      return_date: '',
+      agency_id: '',
+      agency_name: submission.contact_name,
+      agency_whatsapp: formatPhoneBRInput(submission.contact_phone.replace(/^55/, '')),
+      price: '',
+      information: payload.description || '',
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, submission, hydrated])
 
   const { blocker, allowNavigation } = useUnsavedChangesWarning(isDirty)
 
@@ -171,6 +203,9 @@ export default function AdminPackageFormPage() {
       await updateMutation.mutateAsync({ id, input })
     } else {
       await createMutation.mutateAsync({ ...input, id: entityId })
+      if (submissionId) {
+        await approveSubmissionMutation.mutateAsync({ id: submissionId, table: 'packages', entityId })
+      }
     }
 
     await session.commitAndCleanup()

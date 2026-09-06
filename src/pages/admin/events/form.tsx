@@ -1,10 +1,13 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Eye, Save } from 'lucide-react'
 import { useEventAdminDetail, useEventFilterMeta, useCreateEventAdmin, useUpdateEventAdmin } from '@/features/events/api/hooks'
+import { useApproveSubmission } from '@/features/submissions/api/hooks'
+import type { SubmissionPayload } from '@/features/submissions/api/queries'
+import { formatPhoneBRInput } from '@/lib/whatsapp'
 import type { AdditionalLink } from '@/types'
 import { Head } from '@/components/seo/head'
 import { Input } from '@/components/ui/input'
@@ -26,6 +29,7 @@ import {
   useUnsavedChangesWarning,
   UnsavedChangesDialog,
   useUploadSession,
+  useSubmissionPrefill,
   type GalleryItemDraft,
 } from '@/components/admin'
 import { EventDetailView } from '@/pages/events/detail-view'
@@ -69,6 +73,8 @@ export default function AdminEventFormPage() {
   const { data: meta } = useEventFilterMeta()
   const createMutation = useCreateEventAdmin()
   const updateMutation = useUpdateEventAdmin()
+  const { submissionId, submission } = useSubmissionPrefill()
+  const approveSubmissionMutation = useApproveSubmission()
 
   const session = useUploadSession()
   const newIdRef = useRef(crypto.randomUUID())
@@ -79,7 +85,7 @@ export default function AdminEventFormPage() {
   const [amenityIds, setAmenityIds] = useState<string[]>([])
   const [links, setLinks] = useState<AdditionalLink[]>([])
   const [gallery, setGallery] = useState<GalleryItemDraft[]>([])
-  const [hydrated, setHydrated] = useState(!isEditing)
+  const [hydrated, setHydrated] = useState(!isEditing && !submissionId)
   const [showPreview, setShowPreview] = useState(false)
   const saveIntentRef = useRef<'stay' | 'new'>('stay')
 
@@ -111,7 +117,10 @@ export default function AdminEventFormPage() {
     },
   })
 
-  if (existing && !hydrated) {
+  // reset() is an imperative external-store call, not pure state — belongs
+  // in an effect, not the render body (see businesses/form.tsx for why).
+  useEffect(() => {
+    if (!existing || hydrated) return
     setHydrated(true)
     const priceMode = existing.ticket_price_description ? 'paid' : existing.ticket_price === 0 ? 'free' : existing.ticket_price ? 'paid' : 'unset'
     reset({
@@ -136,7 +145,33 @@ export default function AdminEventFormPage() {
     setAmenityIds(existing.amenities.map((a) => a.id))
     setLinks(existing.links || [])
     setGallery(existing.gallery.map((g) => ({ key: g.id, image_url: g.image_url, caption: g.caption || '', aspect_ratio: g.aspect_ratio })))
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existing, hydrated])
+
+  useEffect(() => {
+    if (isEditing || !submission || hydrated) return
+    setHydrated(true)
+    const payload = submission.payload as unknown as SubmissionPayload
+    reset({
+      status: 'draft',
+      image_aspect_ratio: '1:1',
+      priceMode: 'unset',
+      category_id: '',
+      slug: '',
+      name: payload.name || submission.contact_name,
+      venue_name: '',
+      address: payload.address || '',
+      whatsapp: formatPhoneBRInput(submission.contact_phone.replace(/^55/, '')),
+      instagram: payload.instagram || '',
+      description: payload.description || '',
+      // Only a date was collected, not a time — left for the admin to set precisely.
+      start_datetime: payload.event_date ? `${payload.event_date}T18:00` : '',
+      end_datetime: '',
+      ticket_price: '',
+      ticket_price_description: '',
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, submission, hydrated])
 
   const { blocker, allowNavigation } = useUnsavedChangesWarning(isDirty)
 
@@ -183,6 +218,9 @@ export default function AdminEventFormPage() {
       await updateMutation.mutateAsync({ id, input })
     } else {
       await createMutation.mutateAsync({ ...input, id: entityId })
+      if (submissionId) {
+        await approveSubmissionMutation.mutateAsync({ id: submissionId, table: 'events', entityId })
+      }
     }
 
     await session.commitAndCleanup()

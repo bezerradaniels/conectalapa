@@ -1,10 +1,13 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Eye, Save } from 'lucide-react'
 import { useDiningAdminDetail, useDiningFilterMeta, useCreateDiningAdmin, useUpdateDiningAdmin } from '@/features/dining/api/hooks'
+import { useApproveSubmission } from '@/features/submissions/api/hooks'
+import type { SubmissionPayload } from '@/features/submissions/api/queries'
+import { formatPhoneBRInput } from '@/lib/whatsapp'
 import type { OpeningHourInterval } from '@/types'
 import { Head } from '@/components/seo/head'
 import { Input } from '@/components/ui/input'
@@ -24,6 +27,7 @@ import {
   useUnsavedChangesWarning,
   UnsavedChangesDialog,
   useUploadSession,
+  useSubmissionPrefill,
   type GalleryItemDraft,
 } from '@/components/admin'
 import { DiningDetailView } from '@/pages/dining/detail-view'
@@ -71,6 +75,8 @@ export default function AdminDiningFormPage() {
   const { data: meta } = useDiningFilterMeta()
   const createMutation = useCreateDiningAdmin()
   const updateMutation = useUpdateDiningAdmin()
+  const { submissionId, submission } = useSubmissionPrefill()
+  const approveSubmissionMutation = useApproveSubmission()
 
   const session = useUploadSession()
   const newIdRef = useRef(crypto.randomUUID())
@@ -79,7 +85,7 @@ export default function AdminDiningFormPage() {
   const [openingHours, setOpeningHours] = useState<OpeningHourInterval[]>([])
   const [amenityIds, setAmenityIds] = useState<string[]>([])
   const [gallery, setGallery] = useState<GalleryItemDraft[]>([])
-  const [hydrated, setHydrated] = useState(!isEditing)
+  const [hydrated, setHydrated] = useState(!isEditing && !submissionId)
   const [showPreview, setShowPreview] = useState(false)
   const saveIntentRef = useRef<'stay' | 'new'>('stay')
 
@@ -106,7 +112,10 @@ export default function AdminDiningFormPage() {
     },
   })
 
-  if (existing && !hydrated) {
+  // reset() is an imperative external-store call, not pure state — belongs
+  // in an effect, not the render body (see businesses/form.tsx for why).
+  useEffect(() => {
+    if (!existing || hydrated) return
     setHydrated(true)
     reset({
       name: existing.name,
@@ -123,7 +132,27 @@ export default function AdminDiningFormPage() {
     setOpeningHours(existing.opening_hours || [])
     setAmenityIds(existing.amenities.map((a) => a.id))
     setGallery(existing.gallery.map((g) => ({ key: g.id, image_url: g.image_url, caption: g.caption || '', aspect_ratio: g.aspect_ratio })))
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existing, hydrated])
+
+  useEffect(() => {
+    if (isEditing || !submission || hydrated) return
+    setHydrated(true)
+    const payload = submission.payload as unknown as SubmissionPayload
+    reset({
+      name: payload.name || submission.contact_name,
+      slug: '',
+      category_id: '',
+      restaurant_type: 'restaurante',
+      address: payload.address || '',
+      whatsapp: formatPhoneBRInput(submission.contact_phone.replace(/^55/, '')),
+      instagram: payload.instagram || '',
+      description: payload.description || '',
+      price_range: '',
+      status: 'draft',
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, submission, hydrated])
 
   const { blocker, allowNavigation } = useUnsavedChangesWarning(isDirty)
 
@@ -159,6 +188,9 @@ export default function AdminDiningFormPage() {
       await updateMutation.mutateAsync({ id, input })
     } else {
       await createMutation.mutateAsync({ ...input, id: entityId })
+      if (submissionId) {
+        await approveSubmissionMutation.mutateAsync({ id: submissionId, table: 'dining', entityId })
+      }
     }
 
     await session.commitAndCleanup()

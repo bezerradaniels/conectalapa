@@ -1,10 +1,13 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Eye, Save } from 'lucide-react'
 import { useLodgingAdminDetail, useLodgingFilterMeta, useCreateLodgingAdmin, useUpdateLodgingAdmin } from '@/features/lodging/api/hooks'
+import { useApproveSubmission } from '@/features/submissions/api/hooks'
+import type { SubmissionPayload } from '@/features/submissions/api/queries'
+import { formatPhoneBRInput } from '@/lib/whatsapp'
 import { Head } from '@/components/seo/head'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -22,6 +25,7 @@ import {
   useUnsavedChangesWarning,
   UnsavedChangesDialog,
   useUploadSession,
+  useSubmissionPrefill,
   type GalleryItemDraft,
 } from '@/components/admin'
 import { LodgingDetailView } from '@/pages/lodging/detail-view'
@@ -59,6 +63,8 @@ export default function AdminLodgingFormPage() {
   const { data: meta } = useLodgingFilterMeta()
   const createMutation = useCreateLodgingAdmin()
   const updateMutation = useUpdateLodgingAdmin()
+  const { submissionId, submission } = useSubmissionPrefill()
+  const approveSubmissionMutation = useApproveSubmission()
 
   const session = useUploadSession()
   const newIdRef = useRef(crypto.randomUUID())
@@ -66,7 +72,7 @@ export default function AdminLodgingFormPage() {
 
   const [amenityIds, setAmenityIds] = useState<string[]>([])
   const [gallery, setGallery] = useState<GalleryItemDraft[]>([])
-  const [hydrated, setHydrated] = useState(!isEditing)
+  const [hydrated, setHydrated] = useState(!isEditing && !submissionId)
   const [showPreview, setShowPreview] = useState(false)
   const saveIntentRef = useRef<'stay' | 'new'>('stay')
 
@@ -93,7 +99,10 @@ export default function AdminLodgingFormPage() {
     },
   })
 
-  if (existing && !hydrated) {
+  // reset() is an imperative external-store call, not pure state — belongs
+  // in an effect, not the render body (see businesses/form.tsx for why).
+  useEffect(() => {
+    if (!existing || hydrated) return
     setHydrated(true)
     reset({
       name: existing.name,
@@ -109,7 +118,27 @@ export default function AdminLodgingFormPage() {
     })
     setAmenityIds(existing.amenities.map((a) => a.id))
     setGallery(existing.gallery.map((g) => ({ key: g.id, image_url: g.image_url, caption: g.caption || '', aspect_ratio: g.aspect_ratio })))
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existing, hydrated])
+
+  useEffect(() => {
+    if (isEditing || !submission || hydrated) return
+    setHydrated(true)
+    const payload = submission.payload as unknown as SubmissionPayload
+    reset({
+      name: payload.name || submission.contact_name,
+      slug: '',
+      category_id: '',
+      lodging_type: 'pousada',
+      address: payload.address || '',
+      whatsapp: formatPhoneBRInput(submission.contact_phone.replace(/^55/, '')),
+      instagram: payload.instagram || '',
+      description: payload.description || '',
+      price_range: '',
+      status: 'draft',
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing, submission, hydrated])
 
   const { blocker, allowNavigation } = useUnsavedChangesWarning(isDirty)
 
@@ -144,6 +173,9 @@ export default function AdminLodgingFormPage() {
       await updateMutation.mutateAsync({ id, input })
     } else {
       await createMutation.mutateAsync({ ...input, id: entityId })
+      if (submissionId) {
+        await approveSubmissionMutation.mutateAsync({ id: submissionId, table: 'lodging', entityId })
+      }
     }
 
     await session.commitAndCleanup()
